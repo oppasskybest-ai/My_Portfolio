@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opeyemi John - Bootstrap Portfolio</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- EmailJS SDK -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top gradient-bg py-3">
+    <div class="container">
+        <!-- Logo/Brand -->
+        <a class="navbar-brand fw-bold fs-3" href="#">
+            <span class="text-light">Opeyemi</span>
+            <span class="text-warning">John</span>
+        </a>
+        
+        <!-- Mobile Toggle Button -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- Navigation Links -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#home">Home</a>
+                </li>
+                <li class="nav-item">
+                 <a class="nav-link" href="#about">About</a> <!-- Changed from #home to #about -->
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#skills">Skills</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#projects">Projects</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#testimonials">Testimonials</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact">Contact</a>
+                </li>
+            </ul>
+            
+            <!-- Dark Mode Toggle (We'll add functionality later) -->
+            <button class="btn btn-outline-light ms-3" id="darkModeToggle">
+                <i class="bi bi-moon"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+    
+    <!-- Hero/About Section -->
+<section id="home" class="section-padding gradient-bg text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- Text Content -->
+            <div class="col-lg-6 mb-5 mb-lg-0 fade-in">
+                <span class="badge bg-warning text-dark mb-3">Full Stack Developer</span>
+                <h1 class="display-4 fw-bold mb-3">
+                    Hi, I'm <span class="text-warning">Opeyemi John</span>
+                </h1>
+                <p class="lead mb-4">
+                    I build exceptional digital experiences that are fast, accessible, visually appealing, and responsive.
+                    Let's bring your ideas to life!
+                </p>
+                
+                <!-- CTA Buttons -->
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <a href="#projects" class="btn btn-warning btn-lg px-4">
+                        <i class="bi bi-code-slash me-2"></i>View Projects
+                    </a>
+                    <a href="#contact" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-chat-dots me-2"></i>Contact Me
+                    </a>
+                </div>
+                
+                <!-- Social Links -->
+                <div class="d-flex gap-3">
+                    <a href="#" class="text-white fs-4">
+                        <i class="bi bi-github"></i>
+                    </a>
+                    <a href="#" class="text-white fs-4">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
+                    <a href="#" class="text-white fs-4">
+                        <i class="bi bi-twitter"></i>
+                    </a>
+                    <a href="#" class="text-white fs-4">
+                        <i class="bi bi-envelope"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Profile Image -->
+            <div class="col-lg-6 fade-in">
+                <div class="position-relative">
+                    <img src="images/me.png" 
+     alt="Opeyemi John" 
+     class="img-fluid rounded-circle shadow-soft border border-5 border-white">
+                    
+                    <!-- Experience Badge -->
+                    <div class="position-absolute bottom-0 end-0 bg-white rounded-pill p-3 shadow">
+                        <div class="text-center">
+                            <h3 class="text-gradient mb-0">2+</h3>
+                            <small class="text-muted">Years Experience</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- About Me Section -->
+<section id="about" class="section-padding">
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- About Image -->
+            <div class="col-lg-5 mb-5 mb-lg-0 fade-in">
+                <div class="position-relative">
+                    <img src="images/me.png" 
+                         alt="Opeyemi John" 
+                         class="img-fluid rounded shadow-soft"
+                         style="width: 100%; max-width: 400px; height: auto;">
+                    <div class="position-absolute top-0 start-0 bg-primary text-white p-3 rounded">
+                        <i class="bi bi-award fs-4"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- About Content -->
+            <div class="col-lg-7 fade-in">
+                <span class="badge bg-primary mb-3">About Me</span>
+                <h2 class="display-5 fw-bold mb-4">
+                    Passionate Full Stack Developer
+                </h2>
+                
+                <div class="about-content">
+                    <p class="lead mb-4">
+                        Hello! I'm <strong>Opeyemi John</strong>, a dedicated Full Stack Developer with 2+ years of experience creating innovative web solutions.
+                    </p>
+                    
+                    <p class="mb-4">
+                        My journey in web development started with a curiosity about how websites work, which quickly evolved into a passion for building digital experiences that make a difference. I specialize in both frontend and backend technologies, allowing me to bring complete solutions to life.
+                    </p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-3">
+                                    <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                                    <strong>Location:</strong> Lagos, Nigeria
+                                </li>
+                                <li class="mb-3">
+                                    <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                                    <strong>Experience:</strong> 2+ Years
+                                </li>
+                                <li class="mb-3">
+                                    <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                                    <strong>Education:</strong> B.Sc Computer Science
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-3">
+                                    <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                                    <strong>Availability:</strong> Full-time
+                                </li>
+                                <li class="mb-3">
+                                    <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                                    <strong>Freelance:</strong> Available
+                                </li>
+                                <li class="mb-3">
+                                    <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                                    <strong>Projects:</strong> 20+ Completed
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                        
+
+                    <!-- Download CV Button -->
+                    <div class="mt-5">
+                        <a href="#" class="btn btn-primary btn-lg me-3">
+                            <i class="bi bi-download me-2"></i>Download CV
+                        </a>
+                        <a href="#contact" class="btn btn-outline-primary btn-lg">
+                            <i class="bi bi-chat-dots me-2"></i>Let's Talk
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    
+    <!-- Skills Section -->
+<section id="skills" class="section-padding bg-light">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <span class="badge bg-primary mb-3">My Expertise</span>
+                <h2 class="display-5 fw-bold mb-3">Technical Skills</h2>
+                <p class="text-muted">Here are the technologies and tools I work with daily to create amazing web applications.</p>
+            </div>
+        </div>
+        
+        <!-- Skills Grid with Progress Bars -->
+        <div class="row g-4">
+            <!-- Skill 1 -->
+            <div class="col-md-6 col-lg-4 fade-in">
+                <div class="card h-100 shadow-soft border-0 shadow-hover">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                                <i class="bi bi-filetype-html fs-3 text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-1">Frontend Development</h5>
+                                <small class="text-muted">HTML5, CSS3, JavaScript</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Bars -->
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>HTML5 & CSS3</span>
+                                <span>95%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 95%"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>JavaScript</span>
+                                <span>90%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 90%"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>React.js</span>
+                                <span>85%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Skill 2 -->
+            <div class="col-md-6 col-lg-4 fade-in">
+                <div class="card h-100 shadow-soft border-0 shadow-hover">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                                <i class="bi bi-server fs-3 text-success"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-1">Backend Development</h5>
+                                <small class="text-muted">Node.js, Express, Databases</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Bars -->
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Node.js</span>
+                                <span>88%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 88%"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Express.js</span>
+                                <span>85%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 85%"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>MongoDB</span>
+                                <span>80%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 80%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Skill 3 -->
+            <div class="col-md-6 col-lg-4 fade-in">
+                <div class="card h-100 shadow-soft border-0 shadow-hover">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-3 me-3">
+                                <i class="bi bi-tools fs-3 text-warning"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-1">Tools & Others</h5>
+                                <small class="text-muted">DevOps, Version Control</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Bars -->
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Git & GitHub</span>
+                                <span>92%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 92%"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Docker</span>
+                                <span>75%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 75%"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>AWS Basics</span>
+                                <span>70%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 70%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Technology Badges -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h5 class="text-center mb-4">Other Technologies I Use</h5>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <span class="badge bg-primary bg-opacity-10 text-primary p-3">
+                        <i class="bi bi-bootstrap me-2"></i>Bootstrap 5
+                    </span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary p-3">
+                        <i class="bi bi-trello me-2"></i>Tailwind CSS
+                    </span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary p-3">
+                        <i class="bi bi-git me-2"></i>Git
+                    </span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary p-3">
+                        <i class="bi bi-wordpress me-2"></i>REST APIs
+                    </span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary p-3">
+                        <i class="bi bi-database me-2"></i>MySQL
+                    </span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary p-3">
+                        <i class="bi bi-terminal me-2"></i>Linux
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    
+    <!-- Projects Section -->
+<section id="projects" class="section-padding">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <span class="badge bg-primary mb-3">My Work</span>
+                <h2 class="display-5 fw-bold mb-3">Featured Projects</h2>
+                <p class="text-muted">Check out some of my recent work. Each project represents a unique challenge and solution.</p>
+            </div>
+        </div>
+        
+        <!-- Filter Tabs -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8">
+                <div class="d-flex flex-wrap justify-content-center gap-2" id="project-filters">
+                    <button class="btn btn-primary active" data-filter="all">All Projects</button>
+                    <button class="btn btn-outline-primary" data-filter="frontend">Frontend</button>
+                    <button class="btn btn-outline-primary" data-filter="backend">Backend</button>
+                    <button class="btn btn-outline-primary" data-filter="fullstack">Full Stack</button>
+                    <button class="btn btn-outline-primary" data-filter="webapp">Web Apps</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Projects Grid -->
+        <div class="row g-4" id="projects-grid">
+            <!-- Project 1 - Full Stack -->
+            <div class="col-md-6 col-lg-4 project-item" data-category="fullstack webapp">
+                <div class="card h-100 shadow-soft border-0 overflow-hidden shadow-hover">
+                    <!-- Project Image -->
+                    <div class="position-relative overflow-hidden">
+                        <img src="images/E-Commerce.jpeg" 
+     class="card-img-top" 
+     alt="E-Commerce Platform">
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-primary">Full Stack</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="card-title fw-bold">E-Commerce Platform</h5>
+                                <p class="text-muted small">React, Node.js, MongoDB</p>
+                            </div>
+                            <a href="#" class="text-primary">
+                                <i class="bi bi-github fs-5"></i>
+                            </a>
+                        </div>
+                        
+                        <p class="card-text mb-4">
+                            A complete e-commerce solution with user authentication, product management, shopping cart, and payment integration.
+                        </p>
+                        
+                        <!-- Technologies Used -->
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge bg-light text-dark">React</span>
+                            <span class="badge bg-light text-dark">Node.js</span>
+                            <span class="badge bg-light text-dark">Express</span>
+                            <span class="badge bg-light text-dark">MongoDB</span>
+                            <span class="badge bg-light text-dark">Stripe API</span>
+                        </div>
+                        
+                        <!-- Live Demo Button -->
+                        <a href="#" class="btn btn-primary w-100">
+                            <i class="bi bi-play-circle me-2"></i>Live Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project 2 - Frontend -->
+            <div class="col-md-6 col-lg-4 project-item" data-category="frontend">
+                <div class="card h-100 shadow-soft border-0 overflow-hidden shadow-hover">
+                    <!-- Project Image -->
+                    <div class="position-relative overflow-hidden">
+                        <img src="images/Dashboard.jpeg" 
+     class="card-img-top" 
+     alt="Task Manager App">
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-info">Frontend</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="card-title fw-bold">Task Manager Dashboard</h5>
+                                <p class="text-muted small">React, Redux, Tailwind</p>
+                            </div>
+                            <a href="#" class="text-primary">
+                                <i class="bi bi-github fs-5"></i>
+                            </a>
+                        </div>
+                        
+                        <p class="card-text mb-4">
+                            A responsive task management application with drag-and-drop functionality, real-time updates, and team collaboration features.
+                        </p>
+                        
+                        <!-- Technologies Used -->
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge bg-light text-dark">React</span>
+                            <span class="badge bg-light text-dark">Redux</span>
+                            <span class="badge bg-light text-dark">Tailwind CSS</span>
+                            <span class="badge bg-light text-dark">Firebase</span>
+                            <span class="badge bg-light text-dark">DND Kit</span>
+                        </div>
+                        
+                        <!-- Live Demo Button -->
+                        <a href="#" class="btn btn-info w-100">
+                            <i class="bi bi-play-circle me-2"></i>Live Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project 3 - Backend -->
+            <div class="col-md-6 col-lg-4 project-item" data-category="backend">
+                <div class="card h-100 shadow-soft border-0 overflow-hidden shadow-hover">
+                    <!-- Project Image -->
+                    <div class="position-relative overflow-hidden">
+                        <img src="images/API_Code.jpeg" 
+     class="card-img-top" 
+     alt="API Gateway">
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-success">Backend</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="card-title fw-bold">REST API Gateway</h5>
+                                <p class="text-muted small">Node.js, Express, JWT</p>
+                            </div>
+                            <a href="#" class="text-primary">
+                                <i class="bi bi-github fs-5"></i>
+                            </a>
+                        </div>
+                        
+                        <p class="card-text mb-4">
+                            A secure API gateway with rate limiting, authentication, and caching. Handles 10,000+ requests per minute.
+                        </p>
+                        
+                        <!-- Technologies Used -->
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge bg-light text-dark">Node.js</span>
+                            <span class="badge bg-light text-dark">Express</span>
+                            <span class="badge bg-light text-dark">JWT</span>
+                            <span class="badge bg-light text-dark">Redis</span>
+                            <span class="badge bg-light text-dark">Docker</span>
+                        </div>
+                        
+                        <!-- Live Demo Button -->
+                        <a href="#" class="btn btn-success w-100">
+                            <i class="bi bi-play-circle me-2"></i>View API Docs
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project 4 - Web App -->
+<div class="col-md-6 col-lg-4 project-item" data-category="webapp frontend">
+    <div class="card h-100 shadow-soft border-0 overflow-hidden shadow-hover">
+        <!-- Project Image - FIXED CONTAINER -->
+        <div class="position-relative" style="height: 200px; overflow: hidden;">
+            <img src="images/Weather.jpeg" 
+                 class="img-fluid w-100 h-100" 
+                 alt="Weather Application"
+                 style="object-fit: cover;">
+            <div class="position-absolute top-0 end-0 m-3">
+                <span class="badge bg-danger">Web App</span>
+            </div>
+        </div>
+        
+        <!-- Card Body - FIXED PADDING -->
+        <div class="card-body d-flex flex-column p-4" style="min-height: 300px;">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="flex-grow-1">
+                    <h5 class="card-title fw-bold mb-2">Weather Forecast App</h5>
+                    <p class="text-muted small mb-0">JavaScript, APIs, Bootstrap</p>
+                </div>
+                <a href="#" class="text-primary ms-2">
+                    <i class="bi bi-github fs-5"></i>
+                </a>
+            </div>
+            
+            <p class="card-text mb-4 flex-grow-1">
+                A responsive weather application with location detection, 7-day forecast, and interactive maps using OpenWeather API.
+            </p>
+            
+            <!-- Technologies Used -->
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge bg-light text-dark">JavaScript</span>
+                <span class="badge bg-light text-dark">Bootstrap 5</span>
+                <span class="badge bg-light text-dark">OpenWeather API</span>
+                <span class="badge bg-light text-dark">Chart.js</span>
+                <span class="badge bg-light text-dark">Geolocation</span>
+            </div>
+            
+            <!-- Live Demo Button -->
+            <a href="#" class="btn btn-danger mt-auto">
+                <i class="bi bi-play-circle me-2"></i>Live Demo
+            </a>
+        </div>
+    </div>
+</div>
+            
+            <!-- Project 5 - Full Stack -->
+            <div class="col-md-6 col-lg-4 project-item" data-category="fullstack webapp">
+                <div class="card h-100 shadow-soft border-0 overflow-hidden shadow-hover">
+                    <!-- Project Image -->
+                    <div class="position-relative overflow-hidden">
+                        <img src="images/Blog.png" 
+     class="card-img-top" 
+     alt="Blog Platform">
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-purple">Full Stack</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="card-title fw-bold">Blog CMS Platform</h5>
+                                <p class="text-muted small">Vue.js, Laravel, MySQL</p>
+                            </div>
+                            <a href="#" class="text-primary">
+                                <i class="bi bi-github fs-5"></i>
+                            </a>
+                        </div>
+                        
+                        <p class="card-text mb-4">
+                            A content management system for blogging with rich text editor, user roles, comments, and analytics dashboard.
+                        </p>
+                        
+                        <!-- Technologies Used -->
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge bg-light text-dark">Vue.js</span>
+                            <span class="badge bg-light text-dark">Laravel</span>
+                            <span class="badge bg-light text-dark">MySQL</span>
+                            <span class="badge bg-light text-dark">Quill Editor</span>
+                            <span class="badge bg-light text-dark">JWT</span>
+                        </div>
+                        
+                        <!-- Live Demo Button -->
+                        <a href="#" class="btn btn-purple w-100">
+                            <i class="bi bi-play-circle me-2"></i>Live Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project 6 - Frontend -->
+            <div class="col-md-6 col-lg-4 project-item" data-category="frontend">
+                <div class="card h-100 shadow-soft border-0 overflow-hidden shadow-hover">
+                    <!-- Project Image -->
+                    <div class="position-relative overflow-hidden">
+                        <img src="images/Portfolio.jpeg" 
+     class="card-img-top" 
+     alt="Portfolio Website">
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-warning">Frontend</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="card-title fw-bold">Portfolio Website</h5>
+                                <p class="text-muted small">HTML, CSS, JavaScript</p>
+                            </div>
+                            <a href="#" class="text-primary">
+                                <i class="bi bi-github fs-5"></i>
+                            </a>
+                        </div>
+                        
+                        <p class="card-text mb-4">
+                            A responsive portfolio website with dark mode, animations, and interactive elements to showcase projects and skills.
+                        </p>
+                        
+                        <!-- Technologies Used -->
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge bg-light text-dark">HTML5</span>
+                            <span class="badge bg-light text-dark">CSS3</span>
+                            <span class="badge bg-light text-dark">JavaScript</span>
+                            <span class="badge bg-light text-dark">Bootstrap</span>
+                            <span class="badge bg-light text-dark">GSAP</span>
+                        </div>
+                        
+                        <!-- Live Demo Button -->
+                        <a href="#" class="btn btn-warning w-100">
+                            <i class="bi bi-play-circle me-2"></i>View Live
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- View More Button -->
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <a href="#" class="btn btn-outline-primary btn-lg px-5">
+                    <i class="bi bi-arrow-right me-2"></i>View All Projects
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+    
+    <!-- Testimonials Section -->
+<section id="testimonials" class="section-padding bg-light">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <span class="badge bg-primary mb-3">Testimonials</span>
+                <h2 class="display-5 fw-bold mb-3">What People Say</h2>
+                <p class="text-muted">Hear from colleagues, clients, and mentors about their experience working with me.</p>
+            </div>
+        </div>
+
+        <!-- Testimonials Carousel -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <!-- Carousel Indicators -->
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active"></button>
+                        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1"></button>
+                        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="2"></button>
+                        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="3"></button>
+                    </div>
+
+                    <!-- Carousel Items -->
+                    <div class="carousel-inner">
+                        <!-- Testimonial 1 -->
+                        <div class="carousel-item active">
+                            <div class="testimonial-card mx-auto">
+                                <div class="testimonial-content p-5">
+                                    <!-- Quote Icon -->
+                                    <div class="quote-icon mb-4">
+                                        <i class="bi bi-chat-square-quote display-1 text-primary opacity-25"></i>
+                                    </div>
+                                    
+                                    <!-- Testimonial Text -->
+                                    <p class="fs-4 fst-italic mb-4">
+                                        "Opeyemi transformed our e-commerce platform with his technical expertise. His attention to detail and problem-solving skills are exceptional. He delivered ahead of schedule while maintaining the highest quality standards."
+                                    </p>
+                                    
+                                    <!-- Stars Rating -->
+                                    <div class="star-rating mb-3">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    </div>
+                                    
+                                    <!-- Author Info -->
+                                    <div class="author-info d-flex align-items-center">
+                                        <div class="author-avatar me-3">
+                                            <img src="https://randomuser.me/api/portraits/men/32.jpg" 
+                                                 alt="Client" 
+                                                 class="rounded-circle"
+                                                 width="60"
+                                                 height="60">
+                                        </div>
+                                        <div>
+                                            <h5 class="fw-bold mb-1">Michael Chen</h5>
+                                            <p class="text-muted mb-0">CTO, TechSolutions Inc.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Testimonial 2 -->
+                        <div class="carousel-item">
+                            <div class="testimonial-card mx-auto">
+                                <div class="testimonial-content p-5">
+                                    <div class="quote-icon mb-4">
+                                        <i class="bi bi-chat-square-quote display-1 text-primary opacity-25"></i>
+                                    </div>
+                                    
+                                    <p class="fs-4 fst-italic mb-4">
+                                        "Working with Opeyemi was a game-changer for our startup. His ability to understand complex requirements and translate them into clean, maintainable code is remarkable. He's a true full-stack professional."
+                                    </p>
+                                    
+                                    <div class="star-rating mb-3">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-half text-warning"></i>
+                                    </div>
+                                    
+                                    <div class="author-info d-flex align-items-center">
+                                        <div class="author-avatar me-3">
+                                            <img src="https://randomuser.me/api/portraits/women/44.jpg" 
+                                                 alt="Client" 
+                                                 class="rounded-circle"
+                                                 width="60"
+                                                 height="60">
+                                        </div>
+                                        <div>
+                                            <h5 class="fw-bold mb-1">Sarah Johnson</h5>
+                                            <p class="text-muted mb-0">Product Manager, InnovateLabs</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Testimonial 3 -->
+                        <div class="carousel-item">
+                            <div class="testimonial-card mx-auto">
+                                <div class="testimonial-content p-5">
+                                    <div class="quote-icon mb-4">
+                                        <i class="bi bi-chat-square-quote display-1 text-primary opacity-25"></i>
+                                    </div>
+                                    
+                                    <p class="fs-4 fst-italic mb-4">
+                                        "Opeyemi's mentorship was invaluable during our team's transition to modern web technologies. His patience and clear explanations helped our entire team level up their skills. He's not just a developer, but a great teacher."
+                                    </p>
+                                    
+                                    <div class="star-rating mb-3">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    </div>
+                                    
+                                    <div class="author-info d-flex align-items-center">
+                                        <div class="author-avatar me-3">
+                                            <img src="https://randomuser.me/api/portraits/men/67.jpg" 
+                                                 alt="Client" 
+                                                 class="rounded-circle"
+                                                 width="60"
+                                                 height="60">
+                                        </div>
+                                        <div>
+                                            <h5 class="fw-bold mb-1">David Rodriguez</h5>
+                                            <p class="text-muted mb-0">Lead Developer, CodeMasters</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Testimonial 4 (From original recommendations) -->
+                        <div class="carousel-item">
+                            <div class="testimonial-card mx-auto">
+                                <div class="testimonial-content p-5">
+                                    <div class="quote-icon mb-4">
+                                        <i class="bi bi-chat-square-quote display-1 text-primary opacity-25"></i>
+                                    </div>
+                                    
+                                    <p class="fs-4 fst-italic mb-4">
+                                        "Opeyemi demonstrates strong dedication to learning web development and consistently delivers clean, well-structured code. He is reliable, eager to improve, and shows excellent problem-solving skills."
+                                    </p>
+                                    
+                                    <div class="star-rating mb-3">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star text-warning"></i>
+                                    </div>
+                                    
+                                    <div class="author-info d-flex align-items-center">
+                                        <div class="author-avatar me-3">
+                                            <img src="https://randomuser.me/api/portraits/women/28.jpg" 
+                                                 alt="Client" 
+                                                 class="rounded-circle"
+                                                 width="60"
+                                                 height="60">
+                                        </div>
+                                        <div>
+                                            <h5 class="fw-bold mb-1">Emily Wilson</h5>
+                                            <p class="text-muted mb-0">Senior Developer, WebCraft Studios</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Carousel Controls -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Static Testimonials Grid (For mobile/alternative) -->
+        <div class="row mt-5 d-none d-lg-flex">
+            <div class="col-12">
+                <h5 class="text-center mb-4">Featured in</h5>
+                <div class="d-flex flex-wrap justify-content-center align-items-center gap-5">
+                    <div class="client-logo">
+                        <i class="bi bi-microsoft fs-1 text-muted"></i>
+                    </div>
+                    <div class="client-logo">
+                        <i class="bi bi-google fs-1 text-muted"></i>
+                    </div>
+                    <div class="client-logo">
+                        <i class="bi bi-github fs-1 text-muted"></i>
+                    </div>
+                    <div class="client-logo">
+                        <i class="bi bi-amazon fs-1 text-muted"></i>
+                    </div>
+                    <div class="client-logo">
+                        <i class="bi bi-apple fs-1 text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    
+    <!-- Contact Section -->
+<section id="contact" class="section-padding">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <span class="badge bg-primary mb-3">Get In Touch</span>
+                <h2 class="display-5 fw-bold mb-3">Contact Me</h2>
+                <p class="text-muted">Have a project in mind or want to discuss opportunities? Feel free to reach out!</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Contact Info -->
+            <div class="col-lg-4 mb-5 mb-lg-0 fade-in">
+                <div class="contact-info-card p-4 shadow-soft rounded-3 h-100">
+                    <h4 class="fw-bold mb-4">Contact Information</h4>
+                    
+                    <!-- Phone -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="icon-box bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="bi bi-telephone text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Phone</h6>
+                            <p class="text-muted mb-0">+234 811 230 2940</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="icon-box bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="bi bi-envelope text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Email</h6>
+                            <p class="text-muted mb-0">oppasskybest@gmail.com</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Location -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="icon-box bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="bi bi-geo-alt text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Location</h6>
+                            <p class="text-muted mb-0">Lagos, Nigeria</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Links -->
+                    <div class="mt-5">
+                        <h6 class="fw-bold mb-3">Connect with me</h6>
+                        <div class="d-flex gap-3">
+                            <a href="#" class="social-link">
+                                <i class="bi bi-github fs-4"></i>
+                            </a>
+                            <a href="#" class="social-link">
+                                <i class="bi bi-linkedin fs-4"></i>
+                            </a>
+                            <a href="#" class="social-link">
+                                <i class="bi bi-twitter fs-4"></i>
+                            </a>
+                            <a href="#" class="social-link">
+                                <i class="bi bi-whatsapp fs-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="col-lg-8 fade-in">
+                <div class="contact-form-card p-4 p-lg-5 shadow-soft rounded-3">
+                    <form id="contactForm" novalidate>
+                        <div class="row">
+                            <!-- Name Field -->
+                            <div class="col-md-6 mb-4">
+                                <label for="name" class="form-label fw-bold">Full Name *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="name" 
+                                           name="name"
+                                           placeholder="Enter your name"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Please enter your name.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Email Field -->
+                            <div class="col-md-6 mb-4">
+                                <label for="email" class="form-label fw-bold">Email Address *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-envelope"></i>
+                                    </span>
+                                    <input type="email" 
+                                           class="form-control" 
+                                           id="email" 
+                                           name="email"
+                                           placeholder="Enter your email"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Please enter a valid email address.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Subject Field -->
+                            <div class="col-12 mb-4">
+                                <label for="subject" class="form-label fw-bold">Subject *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-tag"></i>
+                                    </span>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="subject" 
+                                           name="subject"
+                                           placeholder="What is this regarding?"
+                                           required>
+                                    <div class="invalid-feedback">
+                                        Please enter a subject.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Message Field -->
+                            <div class="col-12 mb-4">
+                                <label for="message" class="form-label fw-bold">Message *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text align-items-start pt-3">
+                                        <i class="bi bi-chat-left-text"></i>
+                                    </span>
+                                    <textarea class="form-control" 
+                                              id="message" 
+                                              name="message" 
+                                              rows="5"
+                                              placeholder="Tell me about your project or inquiry..."
+                                              required></textarea>
+                                    <div class="invalid-feedback">
+                                        Please enter your message.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary btn-lg px-5" id="submitBtn">
+                                    <span id="submitText">Send Message</span>
+                                    <div class="spinner-border spinner-border-sm d-none" role="status" id="submitSpinner">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </button>
+                                <div class="alert alert-success mt-3 d-none" id="successAlert">
+                                    <i class="bi bi-check-circle me-2"></i>
+                                    Your message has been sent successfully! I'll get back to you soon.
+                                </div>
+                                <div class="alert alert-danger mt-3 d-none" id="errorAlert">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    Something went wrong. Please try again or contact me directly via email.
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    
+    <!-- Footer -->
+<footer class="bg-dark text-white py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Brand/About Column -->
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <div class="footer-brand mb-4">
+                    <h3 class="fw-bold">
+                        <span class="text-light">Opeyemi</span>
+                        <span class="text-warning">John</span>
+                    </h3>
+                    <p class="text-light-50 mt-3">
+                        Full Stack Developer passionate about creating exceptional digital experiences. 
+                        Let's turn your ideas into reality!
+                    </p>
+                </div>
+                
+                <!-- Social Links -->
+                <div class="social-links">
+                    <h6 class="fw-bold mb-3">Connect with me</h6>
+                    <div class="d-flex gap-3">
+                        <a href="https://github.com/yourusername" target="_blank" class="social-icon">
+                            <i class="bi bi-github fs-5"></i>
+                        </a>
+                        <a href="https://linkedin.com/in/yourusername" target="_blank" class="social-icon">
+                            <i class="bi bi-linkedin fs-5"></i>
+                        </a>
+                        <a href="https://twitter.com/yourusername" target="_blank" class="social-icon">
+                            <i class="bi bi-twitter fs-5"></i>
+                        </a>
+                        <a href="https://wa.me/2348112302940" target="_blank" class="social-icon">
+                            <i class="bi bi-whatsapp fs-5"></i>
+                        </a>
+                        <a href="mailto:oppasskybest@gmail.com" class="social-icon">
+                            <i class="bi bi-envelope fs-5"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Links Column -->
+            <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                <h5 class="fw-bold mb-4">Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <a href="#home" class="text-light-50 text-decoration-none footer-link">
+                            <i class="bi bi-chevron-right me-2"></i>Home
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <a href="#about" class="text-light-50 text-decoration-none footer-link">
+                            <i class="bi bi-chevron-right me-2"></i>About
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <a href="#skills" class="text-light-50 text-decoration-none footer-link">
+                            <i class="bi bi-chevron-right me-2"></i>Skills
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <a href="#projects" class="text-light-50 text-decoration-none footer-link">
+                            <i class="bi bi-chevron-right me-2"></i>Projects
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <a href="#contact" class="text-light-50 text-decoration-none footer-link">
+                            <i class="bi bi-chevron-right me-2"></i>Contact
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Technologies Column -->
+            <div class="col-lg-3 col-md-4 mb-4 mb-md-0">
+                <h5 class="fw-bold mb-4">Technologies</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <span class="text-light-50">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>React & Vue.js
+                        </span>
+                    </li>
+                    <li class="mb-3">
+                        <span class="text-light-50">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>Node.js & Express
+                        </span>
+                    </li>
+                    <li class="mb-3">
+                        <span class="text-light-50">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>MongoDB & MySQL
+                        </span>
+                    </li>
+                    <li class="mb-3">
+                        <span class="text-light-50">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>Docker & AWS
+                        </span>
+                    </li>
+                    <li class="mb-3">
+                        <span class="text-light-50">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>Bootstrap & Tailwind
+                        </span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Contact Info Column -->
+            <div class="col-lg-3 col-md-4">
+                <h5 class="fw-bold mb-4">Contact Info</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-4">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-envelope text-warning me-3 fs-5"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Email</h6>
+                                <a href="mailto:oppasskybest@gmail.com" class="text-light-50 text-decoration-none">
+                                    oppasskybest@gmail.com
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="mb-4">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-phone text-warning me-3 fs-5"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Phone</h6>
+                                <a href="tel:+2348112302940" class="text-light-50 text-decoration-none">
+                                    +234 811 230 2940
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="mb-4">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-geo-alt text-warning me-3 fs-5"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Location</h6>
+                                <span class="text-light-50">Lagos, Nigeria</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <hr class="bg-light my-5">
+
+        <!-- Copyright & Bottom Bar -->
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                <p class="mb-0 text-light-50">
+                    &copy; <span id="currentYear"></span> Opeyemi John. All rights reserved.
+                </p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <p class="mb-0 text-light-50">
+                    Built with <i class="bi bi-heart-fill text-danger"></i> using Bootstrap 5
+                    <span class="mx-2">|</span>
+                    <a href="#" class="text-warning text-decoration-none" data-bs-toggle="modal" data-bs-target="#privacyModal">
+                        Privacy Policy
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Back to Top Button -->
+<button id="backToTop" class="btn btn-primary rounded-circle shadow-lg">
+    <i class="bi bi-arrow-up"></i>
+</button>
+
+<!-- Privacy Policy Modal (Optional) -->
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Privacy Policy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Your privacy is important to me. This portfolio site does not collect personal data except through the contact form, which only collects what you provide to respond to your inquiry.</p>
+                <p>No cookies are used for tracking. The contact form uses simulated email sending for demonstration purposes.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+</html>
