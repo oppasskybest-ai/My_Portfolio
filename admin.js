@@ -1,11 +1,19 @@
 // ============================================================
 //  ADMIN PANEL — admin.js
-//  Manage projects and reviews via Supabase
+//  Manage projects (with Supabase Storage uploads) and reviews
 // ============================================================
 
 // ---- CHANGE THIS PASSWORD ----
 const ADMIN_PASSWORD = 'oppa12345678*#';
-// ← Set a strong password before deploying!
+
+// Supabase Storage bucket name (create this in Supabase Dashboard → Storage)
+const STORAGE_BUCKET = 'project-media';
+
+// Accepted file types and size limits
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;  // 5MB
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
 
 // ============================================================
 //  LOGIN
@@ -42,6 +50,7 @@ function showDashboard() {
     document.getElementById('adminDashboard').style.display = 'grid';
     setupAdminPanels();
     setupProjectForm();
+    setupMediaUpload();
     setupShareLink();
     loadAdminProjects();
     loadAdminReviews('pending');
@@ -70,6 +79,206 @@ function setupAdminPanels() {
 }
 
 // ============================================================
+//  MEDIA UPLOAD SYSTEM
+// ============================================================
+function setupMediaUpload() {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('mediaFileInput');
+    const toggleUpload = document.getElementById('toggleUpload');
+    const toggleUrl = document.getElementById('toggleUrl');
+    const uploadMode = document.getElementById('uploadMode');
+    const urlMode = document.getElementById('urlMode');
+    const urlInput = document.getElementById('projMediaUrl');
+    const removeBtn = document.getElementById('removeMediaBtn');
+
+    // Toggle between upload and URL modes
+    toggleUpload?.addEventListener('click', () => {
+        toggleUpload.classList.add('active');
+        toggleUrl.classList.remove('active');
+        uploadMode.style.display = 'block';
+        urlMode.style.display = 'none';
+        clearMediaUrl();
+    });
+
+    toggleUrl?.addEventListener('click', () => {
+        toggleUrl.classList.add('active');
+        toggleUpload.classList.remove('active');
+        urlMode.style.display = 'block';
+        uploadMode.style.display = 'none';
+        clearUploadPreview();
+    });
+
+    // Click on drop zone opens file picker
+    dropZone?.addEventListener('click', () => fileInput?.click());
+
+    // Drag and drop
+    dropZone?.addEventListener('dragover', e => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+    dropZone?.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone?.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) handleFileSelected(file);
+    });
+
+    // File input change
+    fileInput?.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (file) handleFileSelected(file);
+    });
+
+    // URL input — preview on paste/type
+    urlInput?.addEventListener('input', () => {
+        const url = urlInput.value.trim();
+        if (url) {
+            const isVideo = isVideoUrl(url);
+            document.getElementById('projFinalMediaUrl').value = url;
+            document.getElementById('projMediaType').value = isVideo ? 'video' : 'image';
+            showUrlPreview(url, isVideo);
+        } else {
+            document.getElementById('urlPreview').style.display = 'none';
+            document.getElementById('projFinalMediaUrl').value = '';
+        }
+    });
+
+    // Remove uploaded media
+    removeBtn?.addEventListener('click', () => {
+        clearUploadPreview();
+        if (fileInput) fileInput.value = '';
+    });
+}
+
+function handleFileSelected(file) {
+    const isImage = ACCEPTED_IMAGE_TYPES.includes(file.type);
+    const isVideo = ACCEPTED_VIDEO_TYPES.includes(file.type);
+    const msg = document.getElementById('projectMsg');
+
+    if (!isImage && !isVideo) {
+        showMsg(msg, `Unsupported file type: ${file.type}. Use JPG, PNG, WebP, GIF, SVG, MP4, WebM, or MOV.`, 'error');
+        return;
+    }
+
+    const limit = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+    const limitLabel = isVideo ? '50MB' : '5MB';
+    if (file.size > limit) {
+        showMsg(msg, `File too large. ${isVideo ? 'Videos' : 'Images'} must be under ${limitLabel}.`, 'error');
+        return;
+    }
+
+    // Show local preview immediately
+    const objectUrl = URL.createObjectURL(file);
+    showUploadPreview(objectUrl, isVideo, file.name);
+
+    // Store file reference for actual upload at save time
+    window._pendingUploadFile = file;
+    window._pendingUploadType = isVideo ? 'video' : 'image';
+    document.getElementById('projMediaType').value = isVideo ? 'video' : 'image';
+}
+
+async function uploadFileToSupabase(file) {
+    if (!isSupabaseConfigured()) {
+        throw new Error('Supabase not configured. Add your credentials to script.js first.');
+    }
+
+    const ext = file.name.split('.').pop().toLowerCase();
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const filePath = `projects/${fileName}`;
+
+    // Show progress bar
+    const progress = document.getElementById('uploadProgress');
+    const fill = document.getElementById('uploadProgressFill');
+    const text = document.getElementById('uploadProgressText');
+    progress.style.display = 'flex';
+
+    // Simulate progress (Supabase doesn't give real-time progress via REST)
+    let pct = 0;
+    const fakeProgress = setInterval(() => {
+        pct = Math.min(pct + 8, 85);
+        fill.style.width = pct + '%';
+        text.textContent = `Uploading... ${pct}%`;
+    }, 150);
+
+    try {
+        const url = `${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${filePath}`;
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': file.type,
+                'x-upsert': 'true'
+            },
+            body: file
+        });
+
+        clearInterval(fakeProgress);
+
+        if (!res.ok) {
+            const err = await res.text();
+            throw new Error(`Upload failed: ${err}`);
+        }
+
+        fill.style.width = '100%';
+        text.textContent = 'Upload complete!';
+        setTimeout(() => { progress.style.display = 'none'; }, 1500);
+
+        // Return the public URL
+        return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${filePath}`;
+
+    } catch (err) {
+        clearInterval(fakeProgress);
+        progress.style.display = 'none';
+        throw err;
+    }
+}
+
+function showUploadPreview(url, isVideo, fileName) {
+    const preview = document.getElementById('mediaPreview');
+    const inner = document.getElementById('mediaPreviewInner');
+    const nameEl = document.getElementById('mediaFileName');
+
+    inner.innerHTML = isVideo
+        ? `<video src="${url}" muted autoplay loop playsinline style="width:100%;max-height:200px;object-fit:cover"></video>`
+        : `<img src="${url}" alt="Preview" style="width:100%;max-height:200px;object-fit:cover">`;
+
+    if (nameEl) nameEl.textContent = fileName || '';
+    preview.style.display = 'block';
+}
+
+function showUrlPreview(url, isVideo) {
+    const preview = document.getElementById('urlPreview');
+    const inner = document.getElementById('urlPreviewInner');
+
+    inner.innerHTML = isVideo
+        ? `<video src="${url}" muted autoplay loop playsinline style="width:100%;max-height:200px;object-fit:cover"></video>`
+        : `<img src="${url}" alt="Preview" style="width:100%;max-height:200px;object-fit:cover" onerror="this.parentElement.innerHTML='<p style=padding:16px;color:var(--text-3)>Could not load image from URL</p>'">`;
+
+    preview.style.display = 'block';
+}
+
+function clearUploadPreview() {
+    document.getElementById('mediaPreview').style.display = 'none';
+    document.getElementById('mediaPreviewInner').innerHTML = '';
+    document.getElementById('projFinalMediaUrl').value = '';
+    window._pendingUploadFile = null;
+    window._pendingUploadType = null;
+}
+
+function clearMediaUrl() {
+    const urlInput = document.getElementById('projMediaUrl');
+    if (urlInput) urlInput.value = '';
+    document.getElementById('urlPreview').style.display = 'none';
+    document.getElementById('projFinalMediaUrl').value = '';
+}
+
+function isVideoUrl(url) {
+    return /\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(url);
+}
+
+// ============================================================
 //  PROJECTS ADMIN
 // ============================================================
 function setupProjectForm() {
@@ -88,7 +297,8 @@ function setupProjectForm() {
 }
 
 function clearProjectForm() {
-    ['projTitle', 'projDesc', 'projTech', 'projLiveUrl', 'projGithubUrl', 'projImageUrl', 'editProjectId'].forEach(id => {
+    ['projTitle', 'projDesc', 'projTech', 'projLiveUrl', 'projGithubUrl',
+     'projMediaUrl', 'projFinalMediaUrl', 'editProjectId'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
@@ -98,32 +308,32 @@ function clearProjectForm() {
     if (status) status.value = 'live';
     const featured = document.getElementById('projFeatured');
     if (featured) featured.checked = false;
+    const mediaType = document.getElementById('projMediaType');
+    if (mediaType) mediaType.value = 'image';
+
+    clearUploadPreview();
+    clearMediaUrl();
+    window._pendingUploadFile = null;
+
+    // Reset to upload mode
+    document.getElementById('toggleUpload')?.classList.add('active');
+    document.getElementById('toggleUrl')?.classList.remove('active');
+    document.getElementById('uploadMode').style.display = 'block';
+    document.getElementById('urlMode').style.display = 'none';
+    document.getElementById('uploadProgress').style.display = 'none';
 }
 
 async function saveProject() {
     const title = document.getElementById('projTitle')?.value.trim();
     const desc = document.getElementById('projDesc')?.value.trim();
     const msg = document.getElementById('projectMsg');
+    const btn = document.getElementById('saveProjectBtn');
 
     if (!title || !desc) {
-        showMsg(msg, 'Title and description are required', 'error');
+        showMsg(msg, 'Title and description are required.', 'error');
         return;
     }
 
-    const data = {
-        title,
-        description: desc,
-        category: document.getElementById('projCategory')?.value,
-        techs: document.getElementById('projTech')?.value.split(',').map(t => t.trim()).filter(Boolean),
-        status: document.getElementById('projStatus')?.value,
-        live_url: document.getElementById('projLiveUrl')?.value.trim() || null,
-        github_url: document.getElementById('projGithubUrl')?.value.trim() || null,
-        image_url: document.getElementById('projImageUrl')?.value.trim() || null,
-        featured: document.getElementById('projFeatured')?.checked || false,
-    };
-
-    const editId = document.getElementById('editProjectId')?.value;
-    const btn = document.getElementById('saveProjectBtn');
     btn.disabled = true;
     btn.textContent = 'Saving...';
 
@@ -131,6 +341,33 @@ async function saveProject() {
         if (!isSupabaseConfigured()) {
             throw new Error('Supabase not configured yet. Add your credentials to script.js first.');
         }
+
+        // If there's a pending file upload, upload it first
+        let finalMediaUrl = document.getElementById('projFinalMediaUrl')?.value || '';
+        let mediaType = document.getElementById('projMediaType')?.value || 'image';
+
+        if (window._pendingUploadFile) {
+            btn.textContent = 'Uploading media...';
+            finalMediaUrl = await uploadFileToSupabase(window._pendingUploadFile);
+            mediaType = window._pendingUploadType || 'image';
+            window._pendingUploadFile = null;
+        }
+
+        const data = {
+            title,
+            description: desc,
+            category: document.getElementById('projCategory')?.value,
+            techs: document.getElementById('projTech')?.value
+                .split(',').map(t => t.trim()).filter(Boolean),
+            status: document.getElementById('projStatus')?.value,
+            live_url: document.getElementById('projLiveUrl')?.value.trim() || null,
+            github_url: document.getElementById('projGithubUrl')?.value.trim() || null,
+            image_url: finalMediaUrl || null,
+            media_type: mediaType,
+            featured: document.getElementById('projFeatured')?.checked || false,
+        };
+
+        const editId = document.getElementById('editProjectId')?.value;
 
         if (editId) {
             await supabaseAdmin('projects', 'PATCH', data, `id=eq.${editId}`);
@@ -163,9 +400,9 @@ async function loadAdminProjects() {
         loading.style.display = 'none';
         container.innerHTML = `
             <div style="padding:28px;text-align:center;color:var(--text-3)">
-                <p style="margin-bottom:12px">⚙️ Supabase not configured yet.</p>
-                <p>Add your <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> to <strong>script.js</strong> to enable project management.</p>
-                <p style="margin-top:12px;font-size:0.82rem">See SETUP_GUIDE.md for instructions.</p>
+                <p style="margin-bottom:12px">Supabase not configured yet.</p>
+                <p>Add your <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> to <strong>script.js</strong>.</p>
+                <p style="margin-top:12px;font-size:0.82rem">See SETUP_GUIDE.md for step-by-step instructions.</p>
             </div>`;
         return;
     }
@@ -182,6 +419,7 @@ async function loadAdminProjects() {
         container.innerHTML = `
             <table class="admin-table">
                 <thead><tr>
+                    <th>Preview</th>
                     <th>Title</th>
                     <th>Category</th>
                     <th>Status</th>
@@ -189,19 +427,27 @@ async function loadAdminProjects() {
                     <th>Actions</th>
                 </tr></thead>
                 <tbody>
-                    ${projects.map(p => `
-                    <tr>
-                        <td class="table-title">${p.title}</td>
-                        <td>${p.category}</td>
-                        <td><span class="status-pill ${p.status}">${p.status}</span></td>
-                        <td>${p.featured ? '⭐' : ''}</td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="table-btn edit" onclick="editProject(${p.id})">Edit</button>
-                                <button class="table-btn delete" onclick="deleteProject(${p.id}, '${p.title}')">Delete</button>
-                            </div>
-                        </td>
-                    </tr>`).join('')}
+                    ${projects.map(p => {
+                        const thumb = p.image_url
+                            ? (p.media_type === 'video'
+                                ? `<video src="${p.image_url}" muted autoplay loop playsinline style="width:60px;height:40px;object-fit:cover;border-radius:6px"></video>`
+                                : `<img src="${p.image_url}" style="width:60px;height:40px;object-fit:cover;border-radius:6px" alt="">`)
+                            : `<div style="width:60px;height:40px;background:var(--bg-input);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:0.7rem">No img</div>`;
+                        return `
+                        <tr>
+                            <td>${thumb}</td>
+                            <td class="table-title">${p.title}</td>
+                            <td>${p.category}</td>
+                            <td><span class="status-pill ${p.status}">${p.status}</span></td>
+                            <td>${p.featured ? '⭐' : ''}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="table-btn edit" onclick="editProject(${p.id})">Edit</button>
+                                    <button class="table-btn delete" onclick="deleteProject(${p.id}, '${p.title.replace(/'/g, "\\'")}')">Delete</button>
+                                </div>
+                            </td>
+                        </tr>`;
+                    }).join('')}
                 </tbody>
             </table>`;
     } catch(err) {
@@ -224,8 +470,17 @@ async function editProject(id) {
         document.getElementById('projStatus').value = p.status || 'live';
         document.getElementById('projLiveUrl').value = p.live_url || '';
         document.getElementById('projGithubUrl').value = p.github_url || '';
-        document.getElementById('projImageUrl').value = p.image_url || '';
         document.getElementById('projFeatured').checked = p.featured || false;
+        document.getElementById('projMediaType').value = p.media_type || 'image';
+        document.getElementById('projFinalMediaUrl').value = p.image_url || '';
+
+        // Show existing media in URL mode
+        if (p.image_url) {
+            document.getElementById('toggleUrl').click();
+            const urlInput = document.getElementById('projMediaUrl');
+            if (urlInput) urlInput.value = p.image_url;
+            showUrlPreview(p.image_url, p.media_type === 'video');
+        }
 
         document.getElementById('projectFormTitle').textContent = 'Edit Project';
         document.getElementById('projectFormCard').style.display = 'block';
@@ -266,7 +521,6 @@ async function loadAdminReviews(status) {
         const reviews = await supabaseQuery('reviews', {filter: `status=eq.${status}&order=created_at.desc`});
         loading.style.display = 'none';
 
-        // Update pending count
         if (status === 'pending') {
             const count = document.getElementById('pendingCount');
             if (count) count.textContent = `${reviews.length} pending`;
@@ -375,7 +629,7 @@ function setupShareLink() {
 }
 
 // ============================================================
-//  SUPABASE ADMIN HELPER (with service role or anon write)
+//  SUPABASE HELPERS
 // ============================================================
 async function supabaseAdmin(table, method, body = null, filter = '') {
     let url = `${SUPABASE_URL}/rest/v1/${table}`;
@@ -403,5 +657,5 @@ function showMsg(el, text, type) {
     if (!el) return;
     el.textContent = text;
     el.className = `admin-msg ${type}`;
-    setTimeout(() => el.className = 'admin-msg', 5000);
+    setTimeout(() => { if (el) el.className = 'admin-msg'; }, 6000);
 }

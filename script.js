@@ -168,8 +168,11 @@ function renderProjects(projects, filter) {
             'in-progress': 'In Progress'
         }[p.status] || p.status;
 
+        const isVideo = p.media_type === 'video' || /\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(p.image_url || '');
         const imgHtml = p.image_url
-            ? `<img src="${p.image_url}" alt="${p.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=project-img-placeholder><i class=bi-code-square></i></div>'">`
+            ? (isVideo
+                ? `<video src="${p.image_url}" muted autoplay loop playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover"></video>`
+                : `<img src="${p.image_url}" alt="${p.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=project-img-placeholder><i class=bi-code-square></i></div>'">`)
             : `<div class="project-img-placeholder"><i class="bi bi-code-square"></i></div>`;
 
         const liveBtn = p.live_url

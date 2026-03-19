@@ -69,6 +69,7 @@
             <div class="admin-form-card" id="projectFormCard" style="display:none">
                 <h3 id="projectFormTitle">Add New Project</h3>
                 <input type="hidden" id="editProjectId">
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Project Title *</label>
@@ -84,10 +85,12 @@
                         </select>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label>Short Description *</label>
                     <textarea id="projDesc" rows="3" placeholder="What does it do?"></textarea>
                 </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Technologies (comma-separated)</label>
@@ -102,6 +105,7 @@
                         </select>
                     </div>
                 </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Live URL</label>
@@ -112,17 +116,84 @@
                         <input type="url" id="projGithubUrl" placeholder="https://github.com/...">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Image URL</label>
-                    <input type="url" id="projImageUrl" placeholder="https://... (screenshot, hosted image)">
-                    <small>Host your screenshot on <a href="https://imgur.com" target="_blank">imgur.com</a> or use a GitHub raw link</small>
+
+                <!-- ===== MEDIA UPLOAD SECTION ===== -->
+                <div class="media-upload-section">
+                    <div class="media-upload-header">
+                        <i class="bi bi-image"></i>
+                        <h4>Project Media</h4>
+                        <span>Image or Demo Video</span>
+                    </div>
+
+                    <!-- Toggle: Upload vs URL -->
+                    <div class="media-toggle">
+                        <button type="button" class="media-toggle-btn active" id="toggleUpload" data-mode="upload">
+                            <i class="bi bi-upload"></i> Upload File
+                        </button>
+                        <button type="button" class="media-toggle-btn" id="toggleUrl" data-mode="url">
+                            <i class="bi bi-link-45deg"></i> Paste URL
+                        </button>
+                    </div>
+
+                    <!-- UPLOAD MODE -->
+                    <div id="uploadMode">
+                        <div class="drop-zone" id="dropZone">
+                            <input type="file" id="mediaFileInput" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,video/mp4,video/webm,video/quicktime" style="display:none">
+                            <div class="drop-zone-inner" id="dropZoneInner">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <p><strong>Click to upload</strong> or drag and drop here</p>
+                                <p class="drop-zone-hint">
+                                    Images: JPG, PNG, WebP, GIF, SVG — max 5MB<br>
+                                    Videos: MP4, WebM, MOV — max 50MB (loops silently on portfolio)
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Upload progress -->
+                        <div class="upload-progress" id="uploadProgress" style="display:none">
+                            <div class="upload-progress-bar">
+                                <div class="upload-progress-fill" id="uploadProgressFill"></div>
+                            </div>
+                            <span id="uploadProgressText">Uploading...</span>
+                        </div>
+
+                        <!-- Preview after upload -->
+                        <div class="media-preview" id="mediaPreview" style="display:none">
+                            <div class="media-preview-inner" id="mediaPreviewInner"></div>
+                            <div class="media-preview-info">
+                                <span id="mediaFileName"></span>
+                                <button type="button" class="remove-media-btn" id="removeMediaBtn">
+                                    <i class="bi bi-x-circle"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- URL MODE -->
+                    <div id="urlMode" style="display:none">
+                        <div class="form-group">
+                            <label>Image or Video URL</label>
+                            <input type="url" id="projMediaUrl" placeholder="https://... paste a direct image or video link">
+                            <small>For images, <a href="https://imgur.com" target="_blank">imgur.com</a> works reliably. For video, use a direct .mp4 link.</small>
+                        </div>
+                        <div class="media-preview" id="urlPreview" style="display:none">
+                            <div class="media-preview-inner" id="urlPreviewInner"></div>
+                        </div>
+                    </div>
+
+                    <!-- These hidden fields store the final values saved to Supabase -->
+                    <input type="hidden" id="projFinalMediaUrl">
+                    <input type="hidden" id="projMediaType" value="image">
                 </div>
-                <div class="form-group">
+                <!-- ===== END MEDIA SECTION ===== -->
+
+                <div class="form-group" style="margin-top:8px">
                     <label>Featured?</label>
                     <label class="checkbox-label">
                         <input type="checkbox" id="projFeatured"> Show as featured project (larger card)
                     </label>
                 </div>
+
                 <div class="form-actions">
                     <button class="btn-primary" id="saveProjectBtn">Save Project</button>
                     <button class="btn-ghost" id="cancelProjectBtn">Cancel</button>
@@ -160,7 +231,7 @@
             <div class="share-panel-content">
                 <div class="share-link-card">
                     <h3><i class="bi bi-link-45deg"></i> Permanent Review Link</h3>
-                    <p>Send this link to any client after completing their project. It works anytime, for anyone.</p>
+                    <p>Send this link to any client after completing their project.</p>
                     <div class="link-display">
                         <input type="text" id="reviewLinkInput" readonly>
                         <button class="btn-primary" id="copyLinkBtn"><i class="bi bi-clipboard"></i> Copy</button>
