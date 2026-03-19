@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Opeyemi John</title>
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-body">
+
+<!-- Login gate -->
+<div id="loginGate" class="login-gate">
+    <div class="login-card">
+        <div class="login-logo">OJ<span class="dot">.</span></div>
+        <h2>Admin Access</h2>
+        <p>Enter your admin password to continue</p>
+        <div class="form-group">
+            <input type="password" id="adminPassword" placeholder="Password" autocomplete="current-password">
+        </div>
+        <button class="btn-primary" id="loginBtn" style="width:100%">Enter</button>
+        <p class="login-error" id="loginError"></p>
+    </div>
+</div>
+
+<!-- Admin Dashboard -->
+<div id="adminDashboard" class="admin-dashboard" style="display:none">
+
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">OJ<span class="dot">.</span> Admin</div>
+        <nav class="sidebar-nav">
+            <button class="sidebar-btn active" data-panel="projects">
+                <i class="bi bi-code-square"></i> Projects
+            </button>
+            <button class="sidebar-btn" data-panel="reviews">
+                <i class="bi bi-star"></i> Reviews
+            </button>
+            <button class="sidebar-btn" data-panel="sharelink">
+                <i class="bi bi-share"></i> Share Review Link
+            </button>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="index.html" target="_blank" class="sidebar-btn">
+                <i class="bi bi-box-arrow-up-right"></i> View Portfolio
+            </a>
+            <button class="sidebar-btn" id="logoutBtn">
+                <i class="bi bi-power"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+
+        <!-- === PROJECTS PANEL === -->
+        <div id="panel-projects" class="admin-panel active">
+            <div class="panel-header">
+                <h1>Projects</h1>
+                <button class="btn-primary" id="openAddProjectBtn">
+                    <i class="bi bi-plus-lg"></i> Add New Project
+                </button>
+            </div>
+
+            <!-- Add/Edit Project Form -->
+            <div class="admin-form-card" id="projectFormCard" style="display:none">
+                <h3 id="projectFormTitle">Add New Project</h3>
+                <input type="hidden" id="editProjectId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Project Title *</label>
+                        <input type="text" id="projTitle" placeholder="e.g. OutReachFlow">
+                    </div>
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="projCategory">
+                            <option value="frontend">Frontend</option>
+                            <option value="fullstack">Full Stack</option>
+                            <option value="webapp">Web App</option>
+                            <option value="mobile">Mobile</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Short Description *</label>
+                    <textarea id="projDesc" rows="3" placeholder="What does it do?"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Technologies (comma-separated)</label>
+                        <input type="text" id="projTech" placeholder="React, TypeScript, Supabase">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="projStatus">
+                            <option value="live">Live</option>
+                            <option value="completed">Completed</option>
+                            <option value="in-progress">In Progress</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Live URL</label>
+                        <input type="url" id="projLiveUrl" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>GitHub URL</label>
+                        <input type="url" id="projGithubUrl" placeholder="https://github.com/...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" id="projImageUrl" placeholder="https://... (screenshot, hosted image)">
+                    <small>Host your screenshot on <a href="https://imgur.com" target="_blank">imgur.com</a> or use a GitHub raw link</small>
+                </div>
+                <div class="form-group">
+                    <label>Featured?</label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="projFeatured"> Show as featured project (larger card)
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-primary" id="saveProjectBtn">Save Project</button>
+                    <button class="btn-ghost" id="cancelProjectBtn">Cancel</button>
+                </div>
+                <div class="admin-msg" id="projectMsg"></div>
+            </div>
+
+            <!-- Projects list -->
+            <div id="admin-projects-loading" class="loading-state"><div class="spinner"></div></div>
+            <div class="admin-table-wrap" id="admin-projects-list"></div>
+        </div>
+
+        <!-- === REVIEWS PANEL === -->
+        <div id="panel-reviews" class="admin-panel">
+            <div class="panel-header">
+                <h1>Reviews</h1>
+                <span class="badge-count" id="pendingCount">0 pending</span>
+            </div>
+
+            <div class="review-tabs">
+                <button class="review-tab active" data-tab="pending">Pending</button>
+                <button class="review-tab" data-tab="approved">Approved</button>
+                <button class="review-tab" data-tab="rejected">Rejected</button>
+            </div>
+
+            <div id="admin-reviews-loading" class="loading-state"><div class="spinner"></div></div>
+            <div id="admin-reviews-list"></div>
+        </div>
+
+        <!-- === SHARE LINK PANEL === -->
+        <div id="panel-sharelink" class="admin-panel">
+            <div class="panel-header">
+                <h1>Share Review Link</h1>
+            </div>
+            <div class="share-panel-content">
+                <div class="share-link-card">
+                    <h3><i class="bi bi-link-45deg"></i> Permanent Review Link</h3>
+                    <p>Send this link to any client after completing their project. It works anytime, for anyone.</p>
+                    <div class="link-display">
+                        <input type="text" id="reviewLinkInput" readonly>
+                        <button class="btn-primary" id="copyLinkBtn"><i class="bi bi-clipboard"></i> Copy</button>
+                    </div>
+                    <div class="share-options">
+                        <button class="share-opt-btn" id="shareWhatsapp"><i class="bi bi-whatsapp"></i> Share via WhatsApp</button>
+                        <button class="share-opt-btn" id="shareEmail"><i class="bi bi-envelope"></i> Share via Email</button>
+                    </div>
+                </div>
+
+                <div class="share-link-card">
+                    <h3><i class="bi bi-envelope-fill"></i> Email Template</h3>
+                    <p>Copy this template to send clients after project delivery:</p>
+                    <div class="email-template" id="emailTemplate">
+Hi [Client Name],
+
+I'm glad we could complete your project successfully! I'd really appreciate if you could take 2 minutes to leave me a review — it helps other clients know what to expect.
+
+Here's the link: [REVIEW_LINK]
+
+It only takes a minute and means a lot to me. Thank you!
+
+Best,
+Opeyemi John
+                    </div>
+                    <button class="btn-ghost" id="copyEmailTemplate"><i class="bi bi-clipboard"></i> Copy Template</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="script.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

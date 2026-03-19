@@ -1,406 +1,507 @@
-// ============================
-// PORTFOLIO SCRIPT.JS
-// Google Apps Script Contact Form Integration
-// ============================
+// ============================================================
+//  OPEYEMI JOHN PORTFOLIO — script.js
+//  Supabase-powered: projects, reviews, contact form
+// ============================================================
 
-// ============================
-// CONFIGURATION
-// ============================
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxL7Aiq3DrQwJ2YxZXT2eE3WhKeKDqYm-DQe6eN1Yw73tZiLKIB-XXVIeyphb7HbemN3A/exec";
+// ============================================================
+//  SUPABASE CONFIG
+//  → Replace these with your second Supabase project credentials
+//  → Go to: https://supabase.com → New Project → Settings → API
+// ============================================================
+const SUPABASE_URL = 'https://xeqbxhtczgkvyggcueyi.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_TU-RVJG_7PNxLevM7uSOJg_YomlVPH_';
 
-// ============================
-// MAIN INITIALIZATION
-// ============================
-document.addEventListener('DOMContentLoaded', function() {
-    initializeAllFeatures();
-});
+// Google Apps Script URL (your existing contact form backend)
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxL7Aiq3DrQwJ2YxZXT2eE3WhKeKDqYm-DQe6eN1Yw73tZiLKIB-XXVIeyphb7HbemN3A/exec';
 
-function initializeAllFeatures() {
-    setupProjectFilters();
-    setupDarkModeToggle();
-    setupContactForm();
-    setupTestimonialCarousel();
-    setupFooterFeatures();
-    setupAnimations();
-    setupBackToTop();
-    setupNavbarScroll();
+// ============================================================
+//  SUPABASE HELPERS
+// ============================================================
+async function supabaseQuery(table, options = {}) {
+    const { method = 'GET', filter = '', body = null, select = '*' } = options;
+    let url = `${SUPABASE_URL}/rest/v1/${table}?select=${select}`;
+    if (filter) url += `&${filter}`;
+
+    const headers = {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': method === 'POST' ? 'return=representation' : ''
+    };
+
+    const config = { method, headers };
+    if (body) config.body = JSON.stringify(body);
+
+    const res = await fetch(url, config);
+    if (!res.ok) throw new Error(`Supabase error: ${res.status}`);
+    const text = await res.text();
+    return text ? JSON.parse(text) : [];
 }
 
-// ============================
-// 1. PROJECT FILTERS
-// ============================
+// Check if Supabase is configured
+function isSupabaseConfigured() {
+    return SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+}
+
+// ============================================================
+//  FALLBACK PROJECTS (shown until Supabase is set up)
+// ============================================================
+const FALLBACK_PROJECTS = [
+    {
+        id: 1,
+        title: 'OutReachFlow',
+        description: 'Bulk Gmail campaign manager and store link tracker. Helps outreach teams send campaigns at scale with Gmail rotation, CSV imports, and campaign analytics. Live at outreachfl.vercel.app',
+        category: 'webapp',
+        techs: ['React', 'TypeScript', 'Vite', 'Supabase', 'Tailwind', 'Vercel'],
+        status: 'live',
+        live_url: 'https://outreachfl.vercel.app',
+        github_url: 'https://github.com/oppasskybest-ai/outreachflow-web',
+        image_url: '',
+        featured: true
+    },
+    {
+        id: 2,
+        title: 'Bitdrip',
+        description: 'Bitcoin DCA (Dollar Cost Averaging) platform on Starknet blockchain. Built with Next.js 14, full TypeScript, Framer Motion animations. Live on Vercel.',
+        category: 'fullstack',
+        techs: ['Next.js 14', 'TypeScript', 'Starknet', 'Framer Motion', 'Zod'],
+        status: 'live',
+        live_url: 'https://bitdripport.vercel.app',
+        github_url: 'https://github.com/oppasskybest-ai/Bitdrip_rephrase',
+        image_url: '',
+        featured: false
+    },
+    {
+        id: 3,
+        title: 'ZENVORA',
+        description: '190-product e-commerce site with 7 categories, vanilla JS + Tailwind CSS. Multi-page with product filtering, blog, and full navigation.',
+        category: 'frontend',
+        techs: ['HTML5', 'CSS3', 'JavaScript', 'Tailwind CSS'],
+        status: 'completed',
+        live_url: '',
+        github_url: 'https://github.com/oppasskybest-ai/ZENVORA',
+        image_url: '',
+        featured: false
+    },
+    {
+        id: 4,
+        title: 'Developer Portfolio',
+        description: 'This very portfolio — built from scratch with pure HTML, CSS, and JavaScript. Features dark/light mode, Supabase-powered projects and reviews, and an admin panel.',
+        category: 'frontend',
+        techs: ['HTML5', 'CSS3', 'JavaScript', 'Supabase'],
+        status: 'live',
+        live_url: 'https://opeyemjohn.vercel.app',
+        github_url: 'https://github.com/oppasskybest-ai/My_Portfolio',
+        image_url: '',
+        featured: false
+    }
+];
+
+// ============================================================
+//  LOAD PROJECTS
+// ============================================================
+async function loadProjects() {
+    const grid = document.getElementById('projects-grid');
+    const loading = document.getElementById('projects-loading');
+    if (!grid || !loading) return;
+
+    let projects = [];
+
+    try {
+        if (isSupabaseConfigured()) {
+            projects = await supabaseQuery('projects', {
+                filter: 'order=featured.desc,created_at.desc'
+            });
+        }
+    } catch (e) {
+        console.warn('Supabase not configured, using fallback projects');
+    }
+
+    if (projects.length === 0) projects = FALLBACK_PROJECTS;
+
+    loading.style.display = 'none';
+
+    if (projects.length === 0) {
+        document.getElementById('projects-empty').style.display = 'block';
+        return;
+    }
+
+    // Update stats counter
+    const counter = document.getElementById('projectCount');
+    if (counter) counter.textContent = projects.length + '+';
+
+    renderProjects(projects, 'all');
+
+    // Store for filter
+    window._allProjects = projects;
+}
+
+function renderProjects(projects, filter) {
+    const grid = document.getElementById('projects-grid');
+    if (!grid) return;
+
+    const filtered = filter === 'all' ? projects : projects.filter(p => p.category === filter);
+
+    if (filtered.length === 0) {
+        grid.innerHTML = '';
+        document.getElementById('projects-empty').style.display = 'block';
+        return;
+    }
+
+    document.getElementById('projects-empty').style.display = 'none';
+
+    grid.innerHTML = filtered.map(p => {
+        const techs = Array.isArray(p.techs)
+            ? p.techs
+            : (p.techs || '').split(',').map(t => t.trim()).filter(Boolean);
+
+        const categoryLabel = {
+            frontend: 'Frontend',
+            fullstack: 'Full Stack',
+            webapp: 'Web App',
+            mobile: 'Mobile'
+        }[p.category] || p.category;
+
+        const statusLabel = {
+            live: 'Live',
+            completed: 'Completed',
+            'in-progress': 'In Progress'
+        }[p.status] || p.status;
+
+        const imgHtml = p.image_url
+            ? `<img src="${p.image_url}" alt="${p.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=project-img-placeholder><i class=bi-code-square></i></div>'">`
+            : `<div class="project-img-placeholder"><i class="bi bi-code-square"></i></div>`;
+
+        const liveBtn = p.live_url
+            ? `<a href="${p.live_url}" target="_blank" class="project-link primary"><i class="bi bi-play-circle"></i> Live Demo</a>`
+            : '';
+
+        const githubBtn = p.github_url
+            ? `<a href="${p.github_url}" target="_blank" class="project-link secondary"><i class="bi bi-github"></i></a>`
+            : '';
+
+        return `
+        <div class="project-card ${p.featured ? 'featured' : ''}" data-category="${p.category}">
+            <div class="project-img-wrap">
+                ${imgHtml}
+                <span class="project-category-badge">${categoryLabel}</span>
+                <span class="project-status-badge ${p.status}">${statusLabel}</span>
+            </div>
+            <div class="project-body">
+                <h3 class="project-title">${p.title}</h3>
+                <p class="project-desc">${p.description}</p>
+                <div class="project-techs">
+                    ${techs.map(t => `<span class="project-tech">${t}</span>`).join('')}
+                </div>
+                <div class="project-links">
+                    ${liveBtn}
+                    ${githubBtn}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ============================================================
+//  PROJECT FILTERS
+// ============================================================
 function setupProjectFilters() {
-    const filterButtons = document.querySelectorAll('#project-filters .btn');
-    const projectItems = document.querySelectorAll('.project-item');
-    
-    if (filterButtons.length === 0) return;
-    
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active class from all buttons
-            filterButtons.forEach(btn => {
-                btn.classList.remove('active', 'btn-primary');
-                btn.classList.add('btn-outline-primary');
-            });
-            
-            // Add active class to clicked button
-            this.classList.remove('btn-outline-primary');
-            this.classList.add('active', 'btn-primary');
-            
-            const filterValue = this.getAttribute('data-filter');
-            
-            // Show/hide projects based on filter
-            projectItems.forEach(item => {
-                if (filterValue === 'all') {
-                    item.style.display = 'block';
-                    setTimeout(() => {
-                        item.style.opacity = '1';
-                        item.style.transform = 'translateY(0)';
-                    }, 50);
-                } else {
-                    const categories = item.getAttribute('data-category').split(' ');
-                    if (categories.includes(filterValue)) {
-                        item.style.display = 'block';
-                        setTimeout(() => {
-                            item.style.opacity = '1';
-                            item.style.transform = 'translateY(0)';
-                        }, 50);
-                    } else {
-                        item.style.opacity = '0';
-                        item.style.transform = 'translateY(20px)';
-                        setTimeout(() => {
-                            item.style.display = 'none';
-                        }, 300);
-                    }
-                }
-            });
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            renderProjects(window._allProjects || FALLBACK_PROJECTS, this.dataset.filter);
         });
     });
 }
 
-// ============================
-// 2. DARK MODE TOGGLE
-// ============================
-function setupDarkModeToggle() {
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    if (!darkModeToggle) return;
-    
-    const darkModeIcon = darkModeToggle.querySelector('i');
-    
-    darkModeToggle.addEventListener('click', function() {
-        document.body.classList.toggle('dark-mode');
-        
-        if (document.body.classList.contains('dark-mode')) {
-            darkModeIcon.classList.remove('bi-moon');
-            darkModeIcon.classList.add('bi-sun');
-            darkModeToggle.classList.remove('btn-outline-light');
-            darkModeToggle.classList.add('btn-light');
-            localStorage.setItem('darkMode', 'enabled');
-        } else {
-            darkModeIcon.classList.remove('bi-sun');
-            darkModeIcon.classList.add('bi-moon');
-            darkModeToggle.classList.remove('btn-light');
-            darkModeToggle.classList.add('btn-outline-light');
-            localStorage.setItem('darkMode', 'disabled');
+// ============================================================
+//  LOAD REVIEWS
+// ============================================================
+async function loadReviews() {
+    const grid = document.getElementById('reviews-grid');
+    const loading = document.getElementById('reviews-loading');
+    if (!grid || !loading) return;
+
+    let reviews = [];
+
+    try {
+        if (isSupabaseConfigured()) {
+            reviews = await supabaseQuery('reviews', {
+                filter: 'status=eq.approved&order=created_at.desc'
+            });
         }
-    });
-    
-    // Check saved preference on load
-    if (localStorage.getItem('darkMode') === 'enabled') {
-        document.body.classList.add('dark-mode');
-        darkModeIcon.classList.remove('bi-moon');
-        darkModeIcon.classList.add('bi-sun');
-        darkModeToggle.classList.remove('btn-outline-light');
-        darkModeToggle.classList.add('btn-light');
+    } catch (e) {
+        console.warn('Could not load reviews');
     }
+
+    loading.style.display = 'none';
+
+    // Update review count stat
+    const counter = document.getElementById('reviewCount');
+    if (counter) counter.textContent = reviews.length;
+
+    if (reviews.length === 0) {
+        document.getElementById('reviews-empty').style.display = 'block';
+        return;
+    }
+
+    document.getElementById('reviews-empty').style.display = 'none';
+
+    grid.innerHTML = reviews.map(r => {
+        const stars = Array.from({length: 5}, (_, i) =>
+            `<i class="bi ${i < r.rating ? 'bi-star-fill' : 'bi-star'}"></i>`
+        ).join('');
+
+        const initials = (r.name || 'A').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        const avatarHtml = r.photo_url
+            ? `<img src="${r.photo_url}" alt="${r.name}" onerror="this.parentElement.innerHTML='${initials}'">`
+            : initials;
+
+        const date = r.created_at
+            ? new Date(r.created_at).toLocaleDateString('en-US', {month: 'short', year: 'numeric'})
+            : '';
+
+        return `
+        <div class="review-card">
+            <div class="review-stars">${stars}</div>
+            <p class="review-text">${r.review_text}</p>
+            <div class="review-author">
+                <div class="review-avatar">${avatarHtml}</div>
+                <div>
+                    <div class="review-author-name">${r.name}</div>
+                    <div class="review-author-meta">
+                        ${r.country ? `<span><i class="bi bi-geo-alt"></i> ${r.country}</span>` : ''}
+                        ${date ? `<span>${date}</span>` : ''}
+                    </div>
+                    ${r.role ? `<div class="review-author-meta" style="margin-top:2px">${r.role}</div>` : ''}
+                    ${r.project_type ? `<span class="review-project-type">${r.project_type}</span>` : ''}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
 }
 
-// ============================
-// 3. CONTACT FORM WITH GOOGLE APPS SCRIPT
-// ============================
+// ============================================================
+//  CONTACT FORM
+// ============================================================
 function setupContactForm() {
-    const contactForm = document.getElementById('contactForm');
-    if (!contactForm) return;
-    
-    contactForm.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        
-        // Get form elements
-        const nameInput = document.getElementById('name');
-        const emailInput = document.getElementById('email');
-        const subjectInput = document.getElementById('subject');
-        const messageInput = document.getElementById('message');
+    const form = document.getElementById('contactForm');
+    if (!form) return;
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        if (!validateContactForm()) return;
+
         const submitBtn = document.getElementById('submitBtn');
         const submitText = document.getElementById('submitText');
-        const submitSpinner = document.getElementById('submitSpinner');
-        const successAlert = document.getElementById('successAlert');
-        const errorAlert = document.getElementById('errorAlert');
-        
-        // Hide previous alerts
-        successAlert.classList.add('d-none');
-        errorAlert.classList.add('d-none');
-        
-        // Validate form
-        if (!validateContactForm()) {
-            return;
-        }
-        
-        // Show loading state
+        const spinner = document.getElementById('submitSpinner');
+        const success = document.getElementById('successAlert');
+        const error = document.getElementById('errorAlert');
+
+        success.classList.add('d-none');
+        error.classList.add('d-none');
         submitText.textContent = 'Sending...';
-        submitSpinner.classList.remove('d-none');
+        spinner.classList.remove('d-none');
         submitBtn.disabled = true;
-        
-        // Prepare form data for Google Apps Script
-        const formData = {
-            name: nameInput.value.trim(),
-            email: emailInput.value.trim(),
-            subject: subjectInput.value.trim(),
-            message: messageInput.value.trim(),
+
+        const data = {
+            name: document.getElementById('name').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            subject: document.getElementById('subject').value.trim(),
+            message: document.getElementById('message').value.trim(),
             timestamp: new Date().toISOString()
         };
-        
+
         try {
-            // Send to Google Apps Script
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
+            await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors', // Important for Google Apps Script
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
             });
-            
-            // Note: With 'no-cors' mode, we can't read the response status
-            // But the request is sent successfully to Google Apps Script
-            
-            // Show success message
-            successAlert.classList.remove('d-none');
-            
-            // Reset form
-            contactForm.reset();
-            
-            // Reset validation classes
-            [nameInput, emailInput, subjectInput, messageInput].forEach(input => {
-                input.classList.remove('is-valid', 'is-invalid');
-            });
-            
-            // Log success (for debugging)
-            console.log('✅ Message sent successfully!');
-            console.log('📧 Form data:', formData);
-            
-        } catch (error) {
-            // Show error message
-            errorAlert.classList.remove('d-none');
-            console.error('❌ Error sending message:', error);
-            
+            success.classList.remove('d-none');
+            form.reset();
+        } catch (err) {
+            error.classList.remove('d-none');
         } finally {
-            // Reset button state
             submitText.textContent = 'Send Message';
-            submitSpinner.classList.add('d-none');
+            spinner.classList.add('d-none');
             submitBtn.disabled = false;
-            
-            // Auto-hide alerts after 5 seconds
             setTimeout(() => {
-                successAlert.classList.add('d-none');
-                errorAlert.classList.add('d-none');
-            }, 5000);
-        }
-    });
-    
-    // Real-time form validation
-    contactForm.addEventListener('input', function(e) {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-            e.target.classList.remove('is-invalid');
+                success.classList.add('d-none');
+                error.classList.add('d-none');
+            }, 6000);
         }
     });
 }
 
-// Contact form validation helper
 function validateContactForm() {
-    const contactForm = document.getElementById('contactForm');
-    if (!contactForm) return false;
-    
-    const nameInput = document.getElementById('name');
-    const emailInput = document.getElementById('email');
-    const subjectInput = document.getElementById('subject');
-    const messageInput = document.getElementById('message');
-    
-    let isValid = true;
-    
-    if (!nameInput.value.trim()) {
-        nameInput.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        nameInput.classList.remove('is-invalid');
-    }
-    
-    if (!emailInput.value.trim() || !validateEmail(emailInput.value)) {
-        emailInput.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        emailInput.classList.remove('is-invalid');
-    }
-    
-    if (!subjectInput.value.trim()) {
-        subjectInput.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        subjectInput.classList.remove('is-invalid');
-    }
-    
-    if (!messageInput.value.trim()) {
-        messageInput.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        messageInput.classList.remove('is-invalid');
-    }
-    
-    if (!isValid) {
-        // Scroll to first error
-        const firstInvalid = contactForm.querySelector('.is-invalid');
-        if (firstInvalid) {
-            firstInvalid.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
-            });
+    const fields = [
+        {id: 'name', errId: 'nameError', msg: 'Please enter your name'},
+        {id: 'email', errId: 'emailError', msg: 'Please enter a valid email', validator: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)},
+        {id: 'subject', errId: 'subjectError', msg: 'Please enter a subject'},
+        {id: 'message', errId: 'messageError', msg: 'Please write a message'}
+    ];
+
+    let valid = true;
+    fields.forEach(f => {
+        const el = document.getElementById(f.id);
+        const group = el?.closest('.form-group');
+        const val = el?.value.trim();
+        const ok = f.validator ? f.validator(val) : val.length > 0;
+        if (!ok) {
+            group?.classList.add('has-error');
+            valid = false;
+        } else {
+            group?.classList.remove('has-error');
         }
+    });
+
+    return valid;
+}
+
+// ============================================================
+//  DARK MODE
+// ============================================================
+function setupDarkMode() {
+    const toggle = document.getElementById('themeToggle');
+    const icon = document.getElementById('themeIcon');
+    if (!toggle) return;
+
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = saved === 'dark' || (!saved && prefersDark);
+
+    applyTheme(isDark ? 'dark' : 'light', icon);
+
+    toggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        applyTheme(next, icon);
+        localStorage.setItem('theme', next);
+    });
+}
+
+function applyTheme(theme, icon) {
+    document.documentElement.setAttribute('data-theme', theme);
+    if (icon) {
+        icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
     }
-    
-    return isValid;
 }
 
-// Email validation helper
-function validateEmail(email) {
-    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-}
+// ============================================================
+//  NAVBAR
+// ============================================================
+function setupNavbar() {
+    const navbar = document.getElementById('navbar');
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
 
-// ============================
-// 4. TESTIMONIAL CAROUSEL
-// ============================
-function setupTestimonialCarousel() {
-    const testimonialCarousel = document.getElementById('testimonialCarousel');
-    if (!testimonialCarousel) return;
-    
-    const carousel = new bootstrap.Carousel(testimonialCarousel, {
-        interval: 5000,
-        wrap: true,
-        pause: 'hover'
-    });
-    
-    // Auto-play carousel
-    carousel.cycle();
-    
-    // Pause on hover
-    testimonialCarousel.addEventListener('mouseenter', function() {
-        carousel.pause();
-    });
-    
-    testimonialCarousel.addEventListener('mouseleave', function() {
-        carousel.cycle();
-    });
-}
+    if (!navbar) return;
 
-// ============================
-// 5. FOOTER FEATURES
-// ============================
-function setupFooterFeatures() {
-    // Set current year in footer
-    const currentYearElement = document.getElementById('currentYear');
-    if (currentYearElement) {
-        currentYearElement.textContent = new Date().getFullYear();
-    }
-    
-    // Smooth scrolling for footer links
-    document.querySelectorAll('footer a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            if (targetId === '#') return;
-            
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                window.scrollTo({
-                    top: targetElement.offsetTop - 70,
-                    behavior: 'smooth'
-                });
-            }
-        });
+    window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 40);
     });
-}
 
-// ============================
-// 6. ANIMATIONS
-// ============================
-function setupAnimations() {
-    // Fade-in animation for elements with .fade-in class
-    const fadeElements = document.querySelectorAll('.fade-in');
-    
+    // Hamburger toggle
+    hamburger?.addEventListener('click', () => {
+        navLinks?.classList.toggle('open');
+    });
+
+    // Active nav link on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const navLinkEls = document.querySelectorAll('.nav-link');
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+                navLinkEls.forEach(a => {
+                    a.classList.toggle('active', a.getAttribute('href') === `#${entry.target.id}`);
+                });
             }
         });
-    }, { threshold: 0.1 });
-    
-    fadeElements.forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(20px)';
-        el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        observer.observe(el);
+    }, {threshold: 0.35});
+
+    sections.forEach(s => observer.observe(s));
+
+    // Close mobile nav on link click
+    navLinkEls.forEach(a => {
+        a.addEventListener('click', () => navLinks?.classList.remove('open'));
     });
 }
 
-// ============================
-// 7. BACK TO TOP BUTTON - FIXED VERSION
-// ============================
+// ============================================================
+//  BACK TO TOP
+// ============================================================
 function setupBackToTop() {
-    const backToTopButton = document.getElementById('backToTop');
-    if (!backToTopButton) return;
-    
-    // Initially hide the button
-    backToTopButton.style.display = 'none';
-    
-    window.addEventListener('scroll', function() {
-        if (window.pageYOffset > 300) {
-            backToTopButton.style.display = 'block';
-            // Small delay for smooth appearance
-            setTimeout(() => {
-                backToTopButton.style.opacity = '1';
-            }, 10);
-        } else {
-            backToTopButton.style.opacity = '0';
-            setTimeout(() => {
-                if (window.pageYOffset <= 300) {
-                    backToTopButton.style.display = 'none';
-                }
-            }, 300);
-        }
-    });
-    
-    backToTopButton.addEventListener('click', function() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    });
+    const btn = document.getElementById('backToTop');
+    if (!btn) return;
+    window.addEventListener('scroll', () => btn.classList.toggle('visible', window.scrollY > 400));
+    btn.addEventListener('click', () => window.scrollTo({top: 0, behavior: 'smooth'}));
 }
 
-// ============================
-// 8. NAVBAR SCROLL EFFECT
-// ============================
-function setupNavbarScroll() {
-    const navbar = document.querySelector('.navbar');
-    if (!navbar) return;
-    
-    window.addEventListener('scroll', function() {
-        if (window.scrollY > 50) {
-            navbar.classList.add('navbar-scrolled');
-        } else {
-            navbar.classList.remove('navbar-scrolled');
-        }
-    });
+// ============================================================
+//  SKILL BAR ANIMATIONS
+// ============================================================
+function setupSkillBars() {
+    const bars = document.querySelectorAll('.skill-fill');
+    if (!bars.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const bar = entry.target;
+                bar.style.width = bar.dataset.width + '%';
+                observer.unobserve(bar);
+            }
+        });
+    }, {threshold: 0.2});
+
+    bars.forEach(bar => observer.observe(bar));
 }
+
+// ============================================================
+//  SCROLL REVEAL
+// ============================================================
+function setupScrollReveal() {
+    const els = document.querySelectorAll('[data-reveal], [data-reveal-right]');
+    if (!els.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => entry.target.classList.add('revealed'), i * 80);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {threshold: 0.1});
+
+    els.forEach(el => observer.observe(el));
+}
+
+// ============================================================
+//  FOOTER YEAR
+// ============================================================
+function setupFooter() {
+    const el = document.getElementById('year');
+    if (el) el.textContent = new Date().getFullYear();
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    setupDarkMode();
+    setupNavbar();
+    setupBackToTop();
+    setupFooter();
+    setupContactForm();
+    setupProjectFilters();
+    setupSkillBars();
+    setupScrollReveal();
+
+    // Load dynamic data
+    loadProjects();
+    loadReviews();
+});

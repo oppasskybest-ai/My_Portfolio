@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave a Review | Opeyemi John</title>
+    <meta name="description" content="Share your experience working with Opeyemi John.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="review-page-body">
+
+<div class="review-page">
+    <div class="review-page-header">
+        <a href="index.html" class="review-back-link">
+            <i class="bi bi-arrow-left"></i> Back to Portfolio
+        </a>
+    </div>
+
+    <div class="review-card" id="reviewFormCard">
+        <div class="review-card-top">
+            <div class="reviewer-avatar-placeholder">
+                <i class="bi bi-person"></i>
+            </div>
+            <h1>Share Your Experience</h1>
+            <p>Worked with <strong>Opeyemi John</strong>? Let others know how it went. Your honest review helps future clients make informed decisions.</p>
+        </div>
+
+        <form id="reviewForm" class="review-form" novalidate>
+            <!-- Star Rating -->
+            <div class="form-group">
+                <label>Your Rating <span class="required">*</span></label>
+                <div class="star-selector" id="starSelector">
+                    <button type="button" class="star-btn" data-value="1"><i class="bi bi-star"></i></button>
+                    <button type="button" class="star-btn" data-value="2"><i class="bi bi-star"></i></button>
+                    <button type="button" class="star-btn" data-value="3"><i class="bi bi-star"></i></button>
+                    <button type="button" class="star-btn" data-value="4"><i class="bi bi-star"></i></button>
+                    <button type="button" class="star-btn" data-value="5"><i class="bi bi-star"></i></button>
+                </div>
+                <span class="star-label" id="starLabel">Click to rate</span>
+                <input type="hidden" id="ratingValue" value="0">
+                <span class="form-error" id="ratingError">Please select a rating</span>
+            </div>
+
+            <!-- Name -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Your Name <span class="required">*</span></label>
+                    <input type="text" id="reviewName" placeholder="e.g. John Smith" required>
+                    <span class="form-error" id="reviewNameError">Please enter your name</span>
+                </div>
+                <div class="form-group">
+                    <label>Country <span class="required">*</span></label>
+                    <select id="reviewCountry" required>
+                        <option value="">Select country</option>
+                        <option value="Nigeria">Nigeria</option>
+                        <option value="Ghana">Ghana</option>
+                        <option value="Kenya">Kenya</option>
+                        <option value="South Africa">South Africa</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="United States">United States</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Germany">Germany</option>
+                        <option value="France">France</option>
+                        <option value="Netherlands">Netherlands</option>
+                        <option value="India">India</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <span class="form-error" id="reviewCountryError">Please select your country</span>
+                </div>
+            </div>
+
+            <!-- Role / Title -->
+            <div class="form-group">
+                <label>Your Role or Company <span class="optional">(optional)</span></label>
+                <input type="text" id="reviewRole" placeholder="e.g. Founder at MyShop, Freelancer, Student">
+            </div>
+
+            <!-- Project type -->
+            <div class="form-group">
+                <label>What did I build for you? <span class="required">*</span></label>
+                <select id="reviewProject" required>
+                    <option value="">Select project type</option>
+                    <option value="E-Commerce Website">E-Commerce Website</option>
+                    <option value="Business Website">Business Website</option>
+                    <option value="Portfolio Website">Portfolio Website</option>
+                    <option value="Landing Page">Landing Page</option>
+                    <option value="Web Application">Web Application</option>
+                    <option value="Mobile App">Mobile App</option>
+                    <option value="Other">Other</option>
+                </select>
+                <span class="form-error" id="reviewProjectError">Please select a project type</span>
+            </div>
+
+            <!-- Review text -->
+            <div class="form-group">
+                <label>Your Review <span class="required">*</span></label>
+                <textarea id="reviewText" rows="5" placeholder="Tell others about your experience — the quality of work, communication, delivery time, etc." required></textarea>
+                <span class="form-error" id="reviewTextError">Please write your review (min. 20 characters)</span>
+                <span class="char-count" id="charCount">0 / 500</span>
+            </div>
+
+            <!-- Photo URL (optional) -->
+            <div class="form-group">
+                <label>Your Photo URL <span class="optional">(optional — shows on portfolio)</span></label>
+                <input type="url" id="reviewPhoto" placeholder="https://... (LinkedIn photo, etc.)">
+            </div>
+
+            <!-- Consent -->
+            <div class="form-group consent-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="reviewConsent" required>
+                    <span>I agree to my review being published on Opeyemi's portfolio with my name and country.</span>
+                </label>
+                <span class="form-error" id="reviewConsentError">You must agree to publish</span>
+            </div>
+
+            <button type="submit" class="btn-primary form-submit" id="reviewSubmitBtn" style="width:100%">
+                <span id="reviewSubmitText">Submit Review</span>
+                <div class="btn-spinner d-none" id="reviewSpinner"></div>
+            </button>
+        </form>
+    </div>
+
+    <!-- Success state -->
+    <div class="review-success" id="reviewSuccess" style="display:none">
+        <div class="success-icon"><i class="bi bi-check-circle-fill"></i></div>
+        <h2>Thank you!</h2>
+        <p>Your review has been submitted and will appear on my portfolio shortly. I really appreciate you taking the time!</p>
+        <a href="index.html" class="btn-primary">Back to Portfolio</a>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script src="review.js"></script>
+</body>
+</html>
