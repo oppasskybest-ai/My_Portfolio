@@ -357,7 +357,9 @@ ul { list-style: none; }
     display: grid; grid-template-columns: 1fr 1.2fr;
     gap: 72px; align-items: center;
 }
-.about-img-wrap { position: relative; }
+.about-img-wrap {
+    position: relative; /* ADDED: anchor for absolute badges */
+}
 .about-photo {
     width: 100%;
     max-width: 400px;
@@ -378,9 +380,9 @@ ul { list-style: none; }
     border-radius: var(--radius-lg);
     opacity: 0.5;
 }
+/* Base badge style - no positioning offsets */
 .about-badge {
     position: absolute;
-    top: 20px; left: -20px;
     background: var(--accent);
     color: #0a0e0a;
     font-family: var(--font-display);
@@ -388,8 +390,23 @@ ul { list-style: none; }
     font-size: 0.8rem;
     padding: 10px 16px;
     border-radius: var(--radius);
-    display: flex; align-items: center; gap: 8px;
-    z-index: 2; box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 2;
+    box-shadow: var(--shadow-md);
+}
+/* Frontend badge - top left */
+.frontend-badge {
+    top: 20px;
+    left: -20px;
+}
+/* Shopify badge - bottom right */
+.shopify-badge-bottom {
+    bottom: 20px;
+    right: -20px;
+    background: #95bf47; /* Shopify green */
+    color: #fff;
 }
 .about-text { color: var(--text-2); font-size: 1rem; margin-bottom: 18px; line-height: 1.75; }
 .about-details {
