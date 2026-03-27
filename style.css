@@ -1,7 +1,10 @@
 /* ============================================================
    OPEYEMI JOHN PORTFOLIO — style.css
-   Design: Editorial + Modern, Syne + DM Sans
+   Font: Plus Jakarta Sans (single typeface)
    ============================================================ */
+
+/* ---- FONT (Google Fonts) ---- */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 /* ---- TOKENS ---- */
 :root {
@@ -29,8 +32,8 @@
     --radius-sm: 8px;
     --radius-lg: 24px;
 
-    --font-display: 'Syne', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
+    --font-display: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
 
     --nav-h: 72px;
     --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
