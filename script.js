@@ -131,6 +131,8 @@ async function loadProjects() {
     if (counter) counter.textContent = projects.length + '+';
 
     renderProjects(projects, 'all');
+    setupDragScroll(document.getElementById('projects-grid'));
+    setupCarouselArrows('projects-grid', 'projArrowLeft', 'projArrowRight');
 
     // Store for filter
     window._allProjects = projects;
@@ -283,6 +285,9 @@ async function loadReviews() {
             </div>
         </div>`;
     }).join('');
+
+    setupDragScroll(grid);
+    setupCarouselArrows('reviews-grid', 'revArrowLeft', 'revArrowRight');
 }
 
 // ============================================================
@@ -508,3 +513,59 @@ document.addEventListener('DOMContentLoaded', () => {
     loadProjects();
     loadReviews();
 });
+
+// ============================================================
+//  CAROUSEL ARROW BUTTONS
+// ============================================================
+function setupCarouselArrows(gridId, leftBtnId, rightBtnId) {
+    const grid = document.getElementById(gridId);
+    const leftBtn = document.getElementById(leftBtnId);
+    const rightBtn = document.getElementById(rightBtnId);
+    if (!grid || !leftBtn || !rightBtn) return;
+
+    // Scroll by roughly one card width
+    const scrollAmount = () => grid.firstElementChild
+        ? grid.firstElementChild.offsetWidth + 24
+        : 360;
+
+    leftBtn.addEventListener('click', () => {
+        grid.scrollBy({ left: -scrollAmount(), behavior: 'smooth' });
+    });
+
+    rightBtn.addEventListener('click', () => {
+        grid.scrollBy({ left: scrollAmount(), behavior: 'smooth' });
+    });
+
+    // Update arrow disabled state on scroll
+    const updateArrows = () => {
+        leftBtn.disabled = grid.scrollLeft <= 10;
+        rightBtn.disabled = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 10;
+    };
+
+    grid.addEventListener('scroll', updateArrows);
+    // Initial state
+    setTimeout(updateArrows, 100);
+}
+
+// ============================================================
+//  DRAG TO SCROLL (projects + reviews carousels)
+// ============================================================
+function setupDragScroll(el) {
+    if (!el) return;
+    let isDown = false, startX, scrollLeft;
+
+    el.addEventListener('mousedown', e => {
+        isDown = true;
+        startX = e.pageX - el.offsetLeft;
+        scrollLeft = el.scrollLeft;
+        el.style.cursor = 'grabbing';
+    });
+    el.addEventListener('mouseleave', () => { isDown = false; el.style.cursor = 'grab'; });
+    el.addEventListener('mouseup', () => { isDown = false; el.style.cursor = 'grab'; });
+    el.addEventListener('mousemove', e => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - el.offsetLeft;
+        el.scrollLeft = scrollLeft - (x - startX) * 1.5;
+    });
+}

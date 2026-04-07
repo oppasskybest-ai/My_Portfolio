@@ -482,6 +482,54 @@ ul { list-style: none; }
 }
 .tech-tag:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
 
+/* ---- CAROUSEL WRAPPER & ARROWS ---- */
+.carousel-wrapper {
+    position: relative;
+}
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+}
+.carousel-arrow:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0a0e0a;
+    transform: translateY(-50%) scale(1.08);
+}
+.carousel-arrow:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.carousel-arrow-left { left: -22px; }
+.carousel-arrow-right { right: -22px; }
+
+/* On mobile arrows sit inside the wrapper edges */
+@media (max-width: 768px) {
+    .carousel-arrow-left { left: 4px; }
+    .carousel-arrow-right { right: 4px; }
+    .carousel-arrow {
+        width: 36px; height: 36px;
+        font-size: 0.85rem;
+        background: rgba(10,14,10,0.7);
+        border-color: transparent;
+        color: #fff;
+        backdrop-filter: blur(6px);
+    }
+}
+
 /* ---- PROJECTS ---- */
 .project-filters {
     display: flex; gap: 8px; flex-wrap: wrap;
@@ -504,10 +552,18 @@ ul { list-style: none; }
     background: var(--accent-glow);
 }
 .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    display: flex;
     gap: 24px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 16px;
+    cursor: grab;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+.projects-grid::-webkit-scrollbar { display: none; }
+.projects-grid:active { cursor: grabbing; }
 .project-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -515,9 +571,12 @@ ul { list-style: none; }
     overflow: hidden;
     transition: all var(--transition);
     display: flex; flex-direction: column;
+    flex: 0 0 340px;
+    min-width: 340px;
+    scroll-snap-align: start;
 }
 .project-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--accent); }
-.project-card.featured { grid-column: span 2; }
+.project-card.featured { flex: 0 0 520px; min-width: 520px; }
 .project-img-wrap { position: relative; overflow: hidden; height: 220px; background: var(--bg-alt); }
 .project-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
 .project-card:hover .project-img-wrap img { transform: scale(1.04); }
@@ -582,11 +641,19 @@ ul { list-style: none; }
 
 /* ---- TESTIMONIALS ---- */
 .reviews-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    display: flex;
     gap: 24px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 16px;
     margin-bottom: 56px;
+    cursor: grab;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+.reviews-grid::-webkit-scrollbar { display: none; }
+.reviews-grid:active { cursor: grabbing; }
 .review-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -594,6 +661,9 @@ ul { list-style: none; }
     padding: 28px;
     display: flex; flex-direction: column;
     transition: all var(--transition);
+    flex: 0 0 320px;
+    min-width: 320px;
+    scroll-snap-align: start;
 }
 .review-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--accent); }
 .review-stars { display: flex; gap: 3px; margin-bottom: 16px; }
@@ -897,7 +967,7 @@ ul { list-style: none; }
     .skills-grid { grid-template-columns: 1fr 1fr; }
     .contact-grid { grid-template-columns: 1fr; gap: 48px; }
     .footer-inner { grid-template-columns: 1fr 1fr; }
-    .project-card.featured { grid-column: span 1; }
+    .project-card.featured { flex: 0 0 440px; min-width: 440px; }
 }
 
 @media (max-width: 768px) {
@@ -916,8 +986,11 @@ ul { list-style: none; }
     .skills-grid { grid-template-columns: 1fr; }
     .about-details { grid-template-columns: 1fr; }
     .form-row { grid-template-columns: 1fr; }
-    .projects-grid { grid-template-columns: 1fr; }
-    .reviews-grid { grid-template-columns: 1fr; }
+    .projects-grid { grid-template-columns: unset; }
+    .reviews-grid { grid-template-columns: unset; }
+    .project-card { flex: 0 0 300px; min-width: 300px; }
+    .project-card.featured { flex: 0 0 300px; min-width: 300px; }
+    .review-card { flex: 0 0 280px; min-width: 280px; }
     .review-cta { flex-direction: column; text-align: center; }
     .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
     .footer-bottom { flex-direction: column; text-align: center; }

@@ -323,7 +323,15 @@
             <p>Loading projects...</p>
         </div>
 
-        <div class="projects-grid" id="projects-grid"></div>
+        <div class="carousel-wrapper">
+            <button class="carousel-arrow carousel-arrow-left" id="projArrowLeft" aria-label="Previous">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="projects-grid" id="projects-grid"></div>
+            <button class="carousel-arrow carousel-arrow-right" id="projArrowRight" aria-label="Next">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
 
         <div id="projects-empty" class="empty-state" style="display:none">
             <i class="bi bi-folder-x"></i>
@@ -346,7 +354,15 @@
             <p>Loading reviews...</p>
         </div>
 
-        <div class="reviews-grid" id="reviews-grid"></div>
+        <div class="carousel-wrapper">
+            <button class="carousel-arrow carousel-arrow-left" id="revArrowLeft" aria-label="Previous">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="reviews-grid" id="reviews-grid"></div>
+            <button class="carousel-arrow carousel-arrow-right" id="revArrowRight" aria-label="Next">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
 
         <div id="reviews-empty" class="empty-state reviews-empty" style="display:none">
             <i class="bi bi-chat-heart"></i>
