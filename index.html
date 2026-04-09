@@ -66,12 +66,11 @@
             </div>
             <h1 class="hero-title">
                 Building<br>
-                <span class="hero-accent">Digital Things</span><br>
+                <span class="hero-accent" id="typewriter-accent">Digital Things</span><br>
                 That Matter.
             </h1>
             <p class="hero-desc">
-                I'm <strong>Opeyemi John</strong>, a frontend developer and Shopify expert specializing in building fast, accessible, and high-converting web experiences. I work with e-commerce brands to improve their online presence through optimized store design, seamless user experience, and data-driven conversion strategies. My focus is not just on how a website looks, but how well it performs in turning visitors into paying customers.
-
+                <span id="typewriter-desc"></span><span class="typewriter-cursor desc-cursor">|</span>
             </p>
             <div class="hero-cta">
                 <a href="#projects" class="btn-primary">See My Work <i class="bi bi-arrow-right"></i></a>
@@ -137,36 +136,61 @@
             <div class="about-content" data-reveal-right>
                 <div class="section-label">About Me</div>
                 <h2 class="section-title">Passionate about crafting <span class="text-accent">real solutions</span></h2>
-                <p class="about-text">
-                    Hello! I'm <strong>Opeyemi John</strong>, a Self-driven Frontend Developer and Shopify expert with a deep love for building things that work beautifully on the web. I started with curiosity and turned it into a craft  writing clean code, solving real problems, and shipping projects that people actually use.
-                </p>
-                <p class="about-text">
-                    I specialize in React, TypeScript, Tailwind CSS, and Supabase. I've shipped everything from E-commerce stores to outreach tools and DCA platforms. 
-                    On the Shopify side, I help store owners grow through Results‑driven Marketing, Store optimization, conversion rate improvements, High‑performing product pages, sales funnels, and Strategic upsells  all focused on increasing actual revenue, not just traffic.
-                </p>
+
+                <!-- Tab buttons -->
+                <div class="about-tabs">
+                    <button class="about-tab active" data-tab="story">My Story</button>
+                    <button class="about-tab" data-tab="frontend">Frontend</button>
+                    <button class="about-tab" data-tab="shopify">Shopify</button>
+                </div>
+
+                <!-- Tab: Story -->
+                <div class="about-tab-content active" id="tab-story">
+                    <p class="about-text">
+                        Hello! I'm <strong>Opeyemi John</strong>, a self-driven Frontend Developer and Shopify expert with a deep love for building things that work beautifully on the web. I started with curiosity and turned it into a craft — writing clean code, solving real problems, and shipping projects that people actually use.
+                    </p>
+                    <p class="about-text">
+                        I specialize in React, TypeScript, Tailwind CSS, and Supabase. I've shipped everything from e-commerce stores to outreach tools and DCA platforms. Every project I take on is built to last, not just to look good.
+                    </p>
+                </div>
+
+                <!-- Tab: Frontend -->
+                <div class="about-tab-content" id="tab-frontend">
+                    <ul class="about-list">
+                        <li><i class="bi bi-check-circle-fill"></i> Production-ready React & TypeScript apps with clean architecture</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Supabase-powered full-stack apps with auth, storage & real-time data</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Tailwind CSS — pixel-perfect, fully responsive layouts</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Performance-first: fast load times, optimized assets, SEO-ready</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Animated UIs with Framer Motion and smooth micro-interactions</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Vercel & GitHub deployments — live sites, not just demos</li>
+                    </ul>
+                </div>
+
+                <!-- Tab: Shopify -->
+                <div class="about-tab-content" id="tab-shopify">
+                    <ul class="about-list">
+                        <li><i class="bi bi-check-circle-fill"></i> Results-driven store optimization focused on actual revenue growth</li>
+                        <li><i class="bi bi-check-circle-fill"></i> High-converting product pages and sales funnels that close</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Shopify Liquid theme customization — build or modify any theme</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Strategic upsells, cross-sells, and conversion rate improvements</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Store speed optimization — faster stores rank higher and sell more</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Focus: not just traffic, but turning visitors into paying customers</li>
+                    </ul>
+                </div>
 
                 <div class="about-details">
-                          
-          <!-- ====================          <div class="detail-item">
-                        <i class="bi bi-geo-alt"></i>
-                        <div><strong>Location</strong><span>Lagos, Nigeria</span></div>
-                    </div>    =========== -->
-                          
                     <div class="detail-item">
                         <i class="bi bi-briefcase"></i>
                         <div><strong>Available</strong><span>Full-time & Freelance</span></div>
                     </div>
-                          
                     <div class="detail-item">
                         <i class="bi bi-mortarboard"></i>
                         <div><strong>Education</strong><span>B.Sc Computer Science</span></div>
                     </div>
-                          
                     <div class="detail-item">
                         <i class="bi bi-clock"></i>
-                        <div><strong>Experience</strong><span>2+ Year</span></div>
+                        <div><strong>Experience</strong><span>2+ Years</span></div>
                     </div>
-                          
                 </div>
 
                 <div class="about-actions">
@@ -502,6 +526,26 @@
 <button id="backToTop" class="back-to-top" aria-label="Back to top">
     <i class="bi bi-arrow-up"></i>
 </button>
+
+<!-- ==================== PROJECT MODAL ==================== -->
+<div id="projectModal" class="proj-modal-overlay" role="dialog" aria-modal="true" style="display:none">
+    <div class="proj-modal-box">
+        <button class="proj-modal-close" id="projModalClose" aria-label="Close">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="proj-modal-media" id="projModalMedia"></div>
+        <div class="proj-modal-body">
+            <div class="proj-modal-meta">
+                <span class="project-category-badge" id="projModalCategory"></span>
+                <span class="project-status-badge" id="projModalStatus"></span>
+            </div>
+            <h2 class="proj-modal-title" id="projModalTitle"></h2>
+            <p class="proj-modal-desc" id="projModalDesc"></p>
+            <div class="proj-modal-techs" id="projModalTechs"></div>
+            <div class="proj-modal-links" id="projModalLinks"></div>
+        </div>
+    </div>
+</div>
 
 <script src="script.js"></script>
 </body>

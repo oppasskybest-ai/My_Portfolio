@@ -130,6 +130,10 @@ async function loadProjects() {
     const counter = document.getElementById('projectCount');
     if (counter) counter.textContent = projects.length + '+';
 
+    // Store projects globally for modal access
+    window._projectsMap = {};
+    projects.forEach(p => { window._projectsMap[p.id] = p; });
+
     renderProjects(projects, 'all');
     setupDragScroll(document.getElementById('projects-grid'));
     setupCarouselArrows('projects-grid', 'projArrowLeft', 'projArrowRight');
@@ -178,15 +182,15 @@ function renderProjects(projects, filter) {
             : `<div class="project-img-placeholder"><i class="bi bi-code-square"></i></div>`;
 
         const liveBtn = p.live_url
-            ? `<a href="${p.live_url}" target="_blank" class="project-link primary"><i class="bi bi-play-circle"></i> Live Demo</a>`
+            ? `<a href="${p.live_url}" target="_blank" class="project-link primary" onclick="event.stopPropagation()"><i class="bi bi-play-circle"></i> Live Demo</a>`
             : '';
 
         const githubBtn = p.github_url
-            ? `<a href="${p.github_url}" target="_blank" class="project-link secondary"><i class="bi bi-github"></i></a>`
+            ? `<a href="${p.github_url}" target="_blank" class="project-link secondary" onclick="event.stopPropagation()"><i class="bi bi-github"></i></a>`
             : '';
 
         return `
-        <div class="project-card ${p.featured ? 'featured' : ''}" data-category="${p.category}">
+        <div class="project-card ${p.featured ? 'featured' : ''}" data-category="${p.category}" data-id="${p.id}" onclick="handleProjectClick(this)">
             <div class="project-img-wrap">
                 ${imgHtml}
                 <span class="project-category-badge">${categoryLabel}</span>
@@ -201,6 +205,9 @@ function renderProjects(projects, filter) {
                 <div class="project-links">
                     ${liveBtn}
                     ${githubBtn}
+                </div>
+                <div class="project-view-btn">
+                    <i class="bi bi-arrow-down-circle"></i> View Details
                 </div>
             </div>
         </div>`;
@@ -497,6 +504,210 @@ function setupFooter() {
 }
 
 // ============================================================
+//  ABOUT TABS
+// ============================================================
+function setupAboutTabs() {
+    const tabs = document.querySelectorAll('.about-tab');
+    if (!tabs.length) return;
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Deactivate all
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.about-tab-content').forEach(c => c.classList.remove('active'));
+
+            // Activate clicked
+            this.classList.add('active');
+            const target = document.getElementById(`tab-${this.dataset.tab}`);
+            if (target) target.classList.add('active');
+        });
+    });
+}
+
+// ============================================================
+//  TYPEWRITER EFFECT — hero accent title
+// ============================================================
+function setupTypewriter() {
+    setupAccentTypewriter();
+    setupDescTypewriter();
+}
+
+function setupAccentTypewriter() {
+    const el = document.getElementById('typewriter-accent');
+    if (!el) return;
+
+    const phrases = [
+        'Digital Things',
+        'Web Experiences',
+        'Shopify Stores',
+        'React Apps',
+        'Real Solutions',
+        'Fast Websites',
+        'SaaS Products',
+    ];
+
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let deleting = false;
+
+    // Add cursor right after accent span
+    const cursor = document.createElement('span');
+    cursor.className = 'typewriter-cursor';
+    cursor.textContent = '|';
+    el.insertAdjacentElement('afterend', cursor);
+
+    function tick() {
+        const current = phrases[phraseIndex];
+        if (!deleting) {
+            el.textContent = current.slice(0, charIndex + 1);
+            charIndex++;
+            if (charIndex === current.length) {
+                deleting = true;
+                setTimeout(tick, 1800);
+                return;
+            }
+        } else {
+            el.textContent = current.slice(0, charIndex - 1);
+            charIndex--;
+            if (charIndex === 0) {
+                deleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                setTimeout(tick, 300);
+                return;
+            }
+        }
+        setTimeout(tick, deleting ? 45 : 80);
+    }
+    setTimeout(tick, 1200);
+}
+
+function setupDescTypewriter() {
+    const el = document.getElementById('typewriter-desc');
+    if (!el) return;
+
+    const phrases = [
+        "I'm Opeyemi John, a frontend developer and Shopify expert specializing in building fast, accessible, and high-converting web experiences.",
+        "I work with e-commerce brands to improve their online presence through optimized store design, seamless user experience, and data-driven conversion strategies.",
+        "My focus is not just on how a website looks, but how well it performs in turning visitors into paying customers.",
+        "I build with React, TypeScript, Tailwind CSS, Supabase, and Shopify Liquid — based in Lagos, Nigeria, available worldwide."
+    ];
+
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let deleting = false;
+
+    function tick() {
+        const current = phrases[phraseIndex];
+        if (!deleting) {
+            el.textContent = current.slice(0, charIndex + 1);
+            charIndex++;
+            if (charIndex === current.length) {
+                deleting = true;
+                setTimeout(tick, 2800);
+                return;
+            }
+        } else {
+            el.textContent = current.slice(0, charIndex - 1);
+            charIndex--;
+            if (charIndex === 0) {
+                deleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                setTimeout(tick, 400);
+                return;
+            }
+        }
+        setTimeout(tick, deleting ? 16 : 32);
+    }
+    setTimeout(tick, 1600);
+}
+
+// ============================================================
+//  PROJECT MODAL
+// ============================================================
+function setupProjectModal() {
+    const overlay = document.getElementById('projectModal');
+    const closeBtn = document.getElementById('projModalClose');
+    if (!overlay) return;
+
+    // Close on button click
+    closeBtn?.addEventListener('click', closeModal);
+
+    // Close on overlay background click
+    overlay.addEventListener('click', e => {
+        if (e.target === overlay) closeModal();
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeModal();
+    });
+}
+
+function handleProjectClick(cardEl) {
+    const id = cardEl.dataset.id;
+    // For fallback projects (no Supabase), id is a number from FALLBACK_PROJECTS
+    const project = (window._projectsMap && window._projectsMap[id])
+        || (window._allProjects || []).find(p => String(p.id) === String(id));
+    if (project) openProjectModal(project);
+}
+
+function openProjectModal(project) {
+    const overlay = document.getElementById('projectModal');
+    if (!overlay) return;
+
+    const techs = Array.isArray(project.techs)
+        ? project.techs
+        : (project.techs || '').split(',').map(t => t.trim()).filter(Boolean);
+
+    const categoryLabel = {
+        frontend: 'Frontend', fullstack: 'Full Stack',
+        webapp: 'Web App', mobile: 'Mobile', shopify: 'Shopify'
+    }[project.category] || project.category;
+
+    const statusLabel = {
+        live: 'Live', completed: 'Completed', 'in-progress': 'In Progress'
+    }[project.status] || project.status;
+
+    const isVideo = project.media_type === 'video' ||
+        /\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(project.image_url || '');
+
+    // Media
+    const mediaEl = document.getElementById('projModalMedia');
+    if (project.image_url) {
+        mediaEl.innerHTML = isVideo
+            ? `<video src="${project.image_url}" muted autoplay loop playsinline style="width:100%;height:100%;object-fit:cover"></video>`
+            : `<img src="${project.image_url}" alt="${project.title}">`;
+    } else {
+        mediaEl.innerHTML = `<div class="proj-modal-media-placeholder"><i class="bi bi-code-square"></i></div>`;
+    }
+
+    document.getElementById('projModalCategory').textContent = categoryLabel;
+    document.getElementById('projModalCategory').className = 'project-category-badge';
+    document.getElementById('projModalStatus').textContent = statusLabel;
+    document.getElementById('projModalStatus').className = `project-status-badge ${project.status}`;
+    document.getElementById('projModalTitle').textContent = project.title;
+    document.getElementById('projModalDesc').textContent = project.description;
+
+    document.getElementById('projModalTechs').innerHTML = techs
+        .map(t => `<span class="project-tech">${t}</span>`).join('');
+
+    const liveBtn = project.live_url
+        ? `<a href="${project.live_url}" target="_blank" class="project-link primary"><i class="bi bi-play-circle"></i> Live Demo</a>` : '';
+    const githubBtn = project.github_url
+        ? `<a href="${project.github_url}" target="_blank" class="project-link secondary"><i class="bi bi-github"></i> GitHub</a>` : '';
+    document.getElementById('projModalLinks').innerHTML = liveBtn + githubBtn;
+
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    const overlay = document.getElementById('projectModal');
+    if (overlay) overlay.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+// ============================================================
 //  INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -508,6 +719,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setupProjectFilters();
     setupSkillBars();
     setupScrollReveal();
+    setupTypewriter();
+    setupAboutTabs();
+    setupProjectModal();
 
     // Load dynamic data
     loadProjects();
