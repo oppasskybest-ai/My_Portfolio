@@ -548,5 +548,10 @@
 </div>
 
 <script src="script.js"></script>
+<script>
+    // Expose Supabase config to tracker (pulled from script.js globals)
+    window.GOOGLE_SCRIPT_URL = typeof GOOGLE_SCRIPT_URL !== 'undefined' ? GOOGLE_SCRIPT_URL : null;
+</script>
+<script src="tracker.js"></script>
 </body>
 </html>

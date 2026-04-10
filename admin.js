@@ -66,6 +66,15 @@ function setupAdminPanels() {
             this.classList.add('active');
             document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
             document.getElementById(`panel-${this.dataset.panel}`)?.classList.add('active');
+
+            if (this.dataset.panel === 'visitors') {
+                loadVisitorAnalytics();
+                document.getElementById('visitorFilter')?.addEventListener('change', function() {
+                    _currentVisitorDays = this.value === 'all' ? 'all' : parseInt(this.value);
+                    loadVisitorAnalytics();
+                });
+                document.getElementById('refreshVisitors')?.addEventListener('click', loadVisitorAnalytics);
+            }
         });
     });
 
@@ -658,4 +667,242 @@ function showMsg(el, text, type) {
     el.textContent = text;
     el.className = `admin-msg ${type}`;
     setTimeout(() => { if (el) el.className = 'admin-msg'; }, 6000);
+}
+
+// ============================================================
+//  VISITOR ANALYTICS
+// ============================================================
+let _currentVisitorMode = 'all';
+let _currentVisitorDays = 30;
+
+function setVisitorViewMode(mode) {
+    _currentVisitorMode = mode;
+    document.getElementById('viewModeAll')?.classList.toggle('approve', mode === 'all');
+    document.getElementById('viewModeUnique')?.classList.toggle('approve', mode === 'unique');
+    document.getElementById('viewModeAll')?.classList.toggle('edit', mode !== 'all');
+    document.getElementById('viewModeUnique')?.classList.toggle('edit', mode !== 'unique');
+    loadVisitorTable();
+}
+
+async function loadVisitorAnalytics() {
+    if (!isSupabaseConfigured()) {
+        document.getElementById('visitors-loading').style.display = 'none';
+        document.getElementById('visitors-table').innerHTML = `
+            <div style="padding:28px;text-align:center;color:var(--text-3)">
+                <p>Configure Supabase to see visitor analytics.</p>
+                <p style="margin-top:8px;font-size:0.82rem">Also run the visitors SQL from SETUP_GUIDE.md first.</p>
+            </div>`;
+        return;
+    }
+
+    const days = _currentVisitorDays;
+    const since = days === 'all' ? null : new Date(Date.now() - days * 86400000).toISOString();
+    const filter = since ? `visited_at=gte.${since}` : '';
+
+    try {
+        const [visitors, fingerprints] = await Promise.all([
+            supabaseQuery('visitors', { filter: filter ? filter + '&order=visited_at.desc' : 'order=visited_at.desc' }),
+            supabaseQuery('visitor_fingerprints', { filter: 'order=visit_count.desc' })
+        ]);
+
+        renderVisitorStats(visitors, fingerprints);
+        renderTopCountries(visitors);
+        renderTopSources(visitors);
+        renderTopDevices(visitors);
+        renderVisitorTable(visitors, fingerprints);
+
+    } catch (err) {
+        document.getElementById('visitors-loading').style.display = 'none';
+        document.getElementById('visitors-table').innerHTML =
+            `<p style="color:#e53e3e;padding:16px">Error: ${err.message}</p>`;
+    }
+}
+
+function renderVisitorStats(visitors, fingerprints) {
+    const today = new Date().toISOString().slice(0, 10);
+    const todayVisits = visitors.filter(v => v.visited_at?.slice(0, 10) === today).length;
+    const uniqueDevices = new Set(visitors.map(v => v.fingerprint).filter(Boolean)).size;
+    const avgTime = visitors.length
+        ? Math.round(visitors.reduce((s, v) => s + (v.time_spent_seconds || 0), 0) / visitors.length)
+        : 0;
+    const avgScroll = visitors.length
+        ? Math.round(visitors.reduce((s, v) => s + (v.scroll_depth || 0), 0) / visitors.length)
+        : 0;
+    const mobileCount = visitors.filter(v => v.device === 'Mobile').length;
+    const mobilePct = visitors.length ? Math.round((mobileCount / visitors.length) * 100) : 0;
+
+    document.getElementById('statTotalVisits').textContent = visitors.length.toLocaleString();
+    document.getElementById('statUniqueVisitors').textContent = uniqueDevices.toLocaleString();
+    document.getElementById('statToday').textContent = todayVisits.toLocaleString();
+    document.getElementById('statAvgTime').textContent = avgTime >= 60
+        ? Math.floor(avgTime / 60) + 'm ' + (avgTime % 60) + 's'
+        : avgTime + 's';
+    document.getElementById('statAvgScroll').textContent = avgScroll + '%';
+    document.getElementById('statMobile').textContent = mobilePct + '%';
+}
+
+function renderTopCountries(visitors) {
+    const counts = {};
+    visitors.forEach(v => {
+        if (v.country) counts[v.country] = (counts[v.country] || 0) + 1;
+    });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const max = sorted[0]?.[1] || 1;
+
+    document.getElementById('topCountriesList').innerHTML = sorted.length
+        ? sorted.map(([country, count]) => `
+            <div class="insight-row">
+                <div class="insight-row-label">
+                    <span>${country}</span>
+                </div>
+                <div class="insight-bar-wrap">
+                    <div class="insight-bar" style="width:${Math.round((count/max)*100)}%"></div>
+                </div>
+                <span class="insight-count">${count}</span>
+            </div>`).join('')
+        : '<p style="color:var(--text-3);font-size:0.82rem">No data yet</p>';
+}
+
+function renderTopSources(visitors) {
+    const counts = {};
+    visitors.forEach(v => {
+        let source = 'Direct';
+        if (v.referrer) {
+            try {
+                const hostname = new URL(v.referrer).hostname.replace('www.', '');
+                if (hostname.includes('google')) source = 'Google';
+                else if (hostname.includes('linkedin')) source = 'LinkedIn';
+                else if (hostname.includes('twitter') || hostname.includes('x.com')) source = 'Twitter/X';
+                else if (hostname.includes('github')) source = 'GitHub';
+                else if (hostname.includes('whatsapp')) source = 'WhatsApp';
+                else source = hostname;
+            } catch { source = 'Direct'; }
+        }
+        counts[source] = (counts[source] || 0) + 1;
+    });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const max = sorted[0]?.[1] || 1;
+
+    document.getElementById('topSourcesList').innerHTML = sorted.length
+        ? sorted.map(([source, count]) => `
+            <div class="insight-row">
+                <div class="insight-row-label"><span>${source}</span></div>
+                <div class="insight-bar-wrap">
+                    <div class="insight-bar" style="width:${Math.round((count/max)*100)}%"></div>
+                </div>
+                <span class="insight-count">${count}</span>
+            </div>`).join('')
+        : '<p style="color:var(--text-3);font-size:0.82rem">No data yet</p>';
+}
+
+function renderTopDevices(visitors) {
+    const counts = { Mobile: 0, Desktop: 0, Tablet: 0 };
+    visitors.forEach(v => { if (v.device && counts[v.device] !== undefined) counts[v.device]++; });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const max = sorted[0]?.[1] || 1;
+    const icons = { Mobile: 'bi-phone', Desktop: 'bi-laptop', Tablet: 'bi-tablet' };
+
+    document.getElementById('topDevicesList').innerHTML = sorted.map(([device, count]) => `
+        <div class="insight-row">
+            <div class="insight-row-label">
+                <i class="bi ${icons[device] || 'bi-display'}"></i>
+                <span>${device}</span>
+            </div>
+            <div class="insight-bar-wrap">
+                <div class="insight-bar" style="width:${max ? Math.round((count/max)*100) : 0}%"></div>
+            </div>
+            <span class="insight-count">${count}</span>
+        </div>`).join('');
+}
+
+function renderVisitorTable(visitors, fingerprints) {
+    document.getElementById('visitors-loading').style.display = 'none';
+    const container = document.getElementById('visitors-table');
+
+    if (!visitors.length) {
+        container.innerHTML = '<p style="padding:24px;color:var(--text-3)">No visitors recorded yet. Make sure tracker.js is added to index.html and Supabase tables are created.</p>';
+        return;
+    }
+
+    const fpMap = {};
+    fingerprints.forEach(f => { fpMap[f.fingerprint] = f; });
+
+    if (_currentVisitorMode === 'unique') {
+        // Group by fingerprint
+        const grouped = {};
+        visitors.forEach(v => {
+            if (!grouped[v.fingerprint]) grouped[v.fingerprint] = [];
+            grouped[v.fingerprint].push(v);
+        });
+
+        const rows = Object.entries(grouped)
+            .sort((a, b) => b[1].length - a[1].length)
+            .map(([fp, sessions]) => {
+                const latest = sessions[0];
+                const fpData = fpMap[fp];
+                const visitCount = fpData?.visit_count || sessions.length;
+                const firstSeen = fpData?.first_seen
+                    ? new Date(fpData.first_seen).toLocaleDateString() : '—';
+                const lastSeen = fpData?.last_seen
+                    ? new Date(fpData.last_seen).toLocaleDateString() : '—';
+                const avgTime = Math.round(sessions.reduce((s, v) => s + (v.time_spent_seconds || 0), 0) / sessions.length);
+
+                return `<tr>
+                    <td><span class="visitor-fp-badge">${fp.slice(0, 12)}...</span>${visitCount > 1 ? `<span class="visitor-return-badge" style="margin-left:6px">↩ ${visitCount}x</span>` : ''}</td>
+                    <td>${latest.country || '—'}<br><span class="visitor-time">${latest.city || ''}</span></td>
+                    <td>${latest.device || '—'}<br><span class="visitor-time">${latest.os || ''} · ${latest.browser || ''}</span></td>
+                    <td>${latest.screen_resolution || '—'}</td>
+                    <td>${avgTime >= 60 ? Math.floor(avgTime/60)+'m '+avgTime%60+'s' : avgTime+'s'}</td>
+                    <td><span class="visitor-time">${firstSeen}</span><br><span class="visitor-time">Last: ${lastSeen}</span></td>
+                </tr>`;
+            }).join('');
+
+        container.innerHTML = `
+            <table class="admin-table">
+                <thead><tr>
+                    <th>Fingerprint</th><th>Location</th><th>Device</th>
+                    <th>Screen</th><th>Avg Time</th><th>First / Last Seen</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+    } else {
+        // All sessions
+        const rows = visitors.map(v => {
+            const fpData = fpMap[v.fingerprint];
+            const visitCount = fpData?.visit_count || 1;
+            const timeSpent = v.time_spent_seconds || 0;
+            const timeStr = timeSpent >= 60
+                ? Math.floor(timeSpent/60) + 'm ' + timeSpent%60 + 's'
+                : timeSpent + 's';
+            const visitedAt = v.visited_at
+                ? new Date(v.visited_at).toLocaleString() : '—';
+            const sections = Array.isArray(v.sections_visited)
+                ? v.sections_visited.join(', ') : '—';
+
+            return `<tr>
+                <td>${visitedAt}</td>
+                <td>${v.country || '—'}<br><span class="visitor-time">${v.city || ''} ${v.region || ''}</span></td>
+                <td>${v.device || '—'}<br><span class="visitor-time">${v.os || ''} · ${v.browser || ''}</span></td>
+                <td>${v.ip || '—'}<br><span class="visitor-time">${v.timezone || ''}</span></td>
+                <td>${timeStr}<br><span class="visitor-time">Scroll: ${v.scroll_depth || 0}%</span></td>
+                <td style="max-width:140px;font-size:0.75rem;color:var(--text-3)">${sections}</td>
+                <td>${visitCount > 1 ? `<span class="visitor-return-badge">↩ ${visitCount}x</span>` : '<span style="color:var(--text-3);font-size:0.78rem">New</span>'}</td>
+            </tr>`;
+        }).join('');
+
+        container.innerHTML = `
+            <table class="admin-table">
+                <thead><tr>
+                    <th>Time</th><th>Location</th><th>Device</th>
+                    <th>IP / Timezone</th><th>Time & Scroll</th><th>Sections</th><th>Return?</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+    }
+}
+
+async function loadVisitorTable() {
+    document.getElementById('visitors-loading').style.display = 'block';
+    document.getElementById('visitors-table').innerHTML = '';
+    await loadVisitorAnalytics();
 }

@@ -40,6 +40,9 @@
             <button class="sidebar-btn" data-panel="reviews">
                 <i class="bi bi-star"></i> Reviews
             </button>
+            <button class="sidebar-btn" data-panel="visitors">
+                <i class="bi bi-people"></i> Visitors
+            </button>
             <button class="sidebar-btn" data-panel="sharelink">
                 <i class="bi bi-share"></i> Share Review Link
             </button>
@@ -222,6 +225,98 @@
 
             <div id="admin-reviews-loading" class="loading-state"><div class="spinner"></div></div>
             <div id="admin-reviews-list"></div>
+        </div>
+
+        <!-- === VISITORS PANEL === -->
+        <div id="panel-visitors" class="admin-panel">
+            <div class="panel-header">
+                <h1>Visitor Analytics</h1>
+                <div style="display:flex;gap:10px;align-items:center">
+                    <select id="visitorFilter" class="visitor-filter-select">
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="all">All time</option>
+                    </select>
+                    <button class="btn-primary" id="refreshVisitors" style="padding:9px 16px;font-size:0.82rem">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats cards -->
+            <div class="visitor-stats-grid" id="visitorStatsGrid">
+                <div class="visitor-stat-card">
+                    <div class="visitor-stat-icon"><i class="bi bi-eye"></i></div>
+                    <div class="visitor-stat-body">
+                        <span class="visitor-stat-num" id="statTotalVisits">—</span>
+                        <span class="visitor-stat-label">Total Visits</span>
+                    </div>
+                </div>
+                <div class="visitor-stat-card">
+                    <div class="visitor-stat-icon"><i class="bi bi-person-check"></i></div>
+                    <div class="visitor-stat-body">
+                        <span class="visitor-stat-num" id="statUniqueVisitors">—</span>
+                        <span class="visitor-stat-label">Unique Devices</span>
+                    </div>
+                </div>
+                <div class="visitor-stat-card">
+                    <div class="visitor-stat-icon"><i class="bi bi-calendar-day"></i></div>
+                    <div class="visitor-stat-body">
+                        <span class="visitor-stat-num" id="statToday">—</span>
+                        <span class="visitor-stat-label">Visits Today</span>
+                    </div>
+                </div>
+                <div class="visitor-stat-card">
+                    <div class="visitor-stat-icon"><i class="bi bi-clock-history"></i></div>
+                    <div class="visitor-stat-body">
+                        <span class="visitor-stat-num" id="statAvgTime">—</span>
+                        <span class="visitor-stat-label">Avg. Time on Page</span>
+                    </div>
+                </div>
+                <div class="visitor-stat-card">
+                    <div class="visitor-stat-icon"><i class="bi bi-arrow-down-up"></i></div>
+                    <div class="visitor-stat-body">
+                        <span class="visitor-stat-num" id="statAvgScroll">—</span>
+                        <span class="visitor-stat-label">Avg. Scroll Depth</span>
+                    </div>
+                </div>
+                <div class="visitor-stat-card">
+                    <div class="visitor-stat-icon"><i class="bi bi-phone"></i></div>
+                    <div class="visitor-stat-body">
+                        <span class="visitor-stat-num" id="statMobile">—</span>
+                        <span class="visitor-stat-label">Mobile Visitors</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top countries + Sources row -->
+            <div class="visitor-insights-row">
+                <div class="visitor-insight-card" id="topCountriesCard">
+                    <h4><i class="bi bi-globe"></i> Top Countries</h4>
+                    <div id="topCountriesList" class="insight-list"></div>
+                </div>
+                <div class="visitor-insight-card" id="topSourcesCard">
+                    <h4><i class="bi bi-signpost-split"></i> Traffic Sources</h4>
+                    <div id="topSourcesList" class="insight-list"></div>
+                </div>
+                <div class="visitor-insight-card" id="topDevicesCard">
+                    <h4><i class="bi bi-laptop"></i> Devices</h4>
+                    <div id="topDevicesList" class="insight-list"></div>
+                </div>
+            </div>
+
+            <!-- Visitor Table -->
+            <div class="panel-header" style="margin-top:32px;margin-bottom:16px">
+                <h3 style="font-size:1rem">All Visits</h3>
+                <div style="display:flex;gap:8px">
+                    <button class="table-btn edit" id="viewModeAll" onclick="setVisitorViewMode('all')">All Sessions</button>
+                    <button class="table-btn approve" id="viewModeUnique" onclick="setVisitorViewMode('unique')">Unique Devices</button>
+                </div>
+            </div>
+
+            <div id="visitors-loading" class="loading-state"><div class="spinner"></div></div>
+            <div class="admin-table-wrap" id="visitors-table"></div>
         </div>
 
         <!-- === SHARE LINK PANEL === -->

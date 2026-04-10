@@ -583,40 +583,24 @@ function setupAccentTypewriter() {
 
 function setupDescTypewriter() {
     const el = document.getElementById('typewriter-desc');
+    const cursor = document.querySelector('.desc-cursor');
     if (!el) return;
 
-    const phrases = [
-        "I'm Opeyemi John, a frontend developer and Shopify expert specializing in building fast, accessible, and high-converting web experiences.",
-        "I work with e-commerce brands to improve their online presence through optimized store design, seamless user experience, and data-driven conversion strategies.",
-        "My focus is not just on how a website looks, but how well it performs in turning visitors into paying customers.",
-        "I build with React, TypeScript, Tailwind CSS, Supabase, and Shopify Liquid — based in Lagos, Nigeria, available worldwide."
-    ];
+    const fullText = "I'm Opeyemi John, a frontend developer and Shopify expert specializing in building fast, accessible, and high-converting web experiences. I work with e-commerce brands to improve their online presence through optimized store design, seamless user experience, and data-driven conversion strategies. My focus is not just on how a website looks, but how well it performs in turning visitors into paying customers.";
 
-    let phraseIndex = 0;
     let charIndex = 0;
-    let deleting = false;
 
     function tick() {
-        const current = phrases[phraseIndex];
-        if (!deleting) {
-            el.textContent = current.slice(0, charIndex + 1);
+        if (charIndex < fullText.length) {
+            el.textContent = fullText.slice(0, charIndex + 1);
             charIndex++;
-            if (charIndex === current.length) {
-                deleting = true;
-                setTimeout(tick, 2800);
-                return;
-            }
+            setTimeout(tick, 28);
         } else {
-            el.textContent = current.slice(0, charIndex - 1);
-            charIndex--;
-            if (charIndex === 0) {
-                deleting = false;
-                phraseIndex = (phraseIndex + 1) % phrases.length;
-                setTimeout(tick, 400);
-                return;
-            }
+            // Done — hide cursor after a short pause
+            setTimeout(() => {
+                if (cursor) cursor.style.display = 'none';
+            }, 1200);
         }
-        setTimeout(tick, deleting ? 16 : 32);
     }
     setTimeout(tick, 1600);
 }
