@@ -8,8 +8,8 @@
 //  → Replace these with your second Supabase project credentials
 //  → Go to: https://supabase.com → New Project → Settings → API
 // ============================================================
-const SUPABASE_URL = 'https://xeqbxhtczgkvyggcueyi.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_TU-RVJG_7PNxLevM7uSOJg_YomlVPH_';
+window.SUPABASE_URL =  'https://xeqbxhtczgkvyggcueyi.supabase.co';
+window.SUPABASE_ANON_KEY =  'sb_publishable_TU-RVJG_7PNxLevM7uSOJg_YomlVPH_';
 
 // Google Apps Script URL (your existing contact form backend)
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxL7Aiq3DrQwJ2YxZXT2eE3WhKeKDqYm-DQe6eN1Yw73tZiLKIB-XXVIeyphb7HbemN3A/exec';
