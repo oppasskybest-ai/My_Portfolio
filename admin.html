@@ -40,6 +40,9 @@
             <button class="sidebar-btn" data-panel="reviews">
                 <i class="bi bi-star"></i> Reviews
             </button>
+            <button class="sidebar-btn" data-panel="awards">
+                <i class="bi bi-award"></i> Awards
+            </button>
             <button class="sidebar-btn" data-panel="visitors">
                 <i class="bi bi-people"></i> Visitors
             </button>
@@ -208,6 +211,121 @@
             <!-- Projects list -->
             <div id="admin-projects-loading" class="loading-state"><div class="spinner"></div></div>
             <div class="admin-table-wrap" id="admin-projects-list"></div>
+        </div>
+
+        <!-- === AWARDS PANEL === -->
+        <div id="panel-awards" class="admin-panel">
+            <div class="panel-header">
+                <h1>Awards &amp; Certificates</h1>
+                <button class="btn-primary" id="openAddAwardBtn">
+                    <i class="bi bi-plus-lg"></i> Add Award
+                </button>
+            </div>
+
+            <!-- Add/Edit Award Form -->
+            <div class="admin-form-card" id="awardFormCard" style="display:none">
+                <h3 id="awardFormTitle">Add New Award</h3>
+                <input type="hidden" id="editAwardId">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" id="awardTitle" placeholder="e.g. IBM Full Stack Developer Certificate">
+                    </div>
+                    <div class="form-group">
+                        <label>Issuer *</label>
+                        <input type="text" id="awardIssuer" placeholder="e.g. IBM / Coursera">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Year</label>
+                        <input type="number" id="awardYear" placeholder="2024" min="2000" max="2099">
+                    </div>
+                    <div class="form-group">
+                        <label>Verify / Credential URL</label>
+                        <input type="url" id="awardVerifyUrl" placeholder="https://coursera.org/verify/...">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="awardDesc" rows="3" placeholder="Brief description of this award or certification..."></textarea>
+                </div>
+
+                <!-- Media Upload (reusing same pattern as projects) -->
+                <div class="media-upload-section">
+                    <div class="media-upload-header">
+                        <i class="bi bi-image"></i>
+                        <h4>Certificate / Award Image</h4>
+                        <span>Upload or paste a URL</span>
+                    </div>
+
+                    <div class="media-toggle">
+                        <button type="button" class="media-toggle-btn active" id="awardToggleUpload">
+                            <i class="bi bi-upload"></i> Upload File
+                        </button>
+                        <button type="button" class="media-toggle-btn" id="awardToggleUrl">
+                            <i class="bi bi-link-45deg"></i> Paste URL
+                        </button>
+                    </div>
+
+                    <div id="awardUploadMode">
+                        <div class="drop-zone" id="awardDropZone">
+                            <input type="file" id="awardFileInput" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" style="display:none">
+                            <div class="drop-zone-inner">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <p><strong>Click to upload</strong> or drag and drop</p>
+                                <p class="drop-zone-hint">JPG, PNG, WebP, GIF, SVG — max 5MB</p>
+                            </div>
+                        </div>
+                        <div class="upload-progress" id="awardUploadProgress" style="display:none">
+                            <div class="upload-progress-bar">
+                                <div class="upload-progress-fill" id="awardUploadProgressFill"></div>
+                            </div>
+                            <span id="awardUploadProgressText">Uploading...</span>
+                        </div>
+                        <div class="media-preview" id="awardMediaPreview" style="display:none">
+                            <div class="media-preview-inner" id="awardMediaPreviewInner"></div>
+                            <div class="media-preview-info">
+                                <span id="awardMediaFileName"></span>
+                                <button type="button" class="remove-media-btn" id="awardRemoveMediaBtn">
+                                    <i class="bi bi-x-circle"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="awardUrlMode" style="display:none">
+                        <div class="form-group">
+                            <label>Image URL</label>
+                            <input type="url" id="awardMediaUrl" placeholder="https://... paste a direct image link">
+                        </div>
+                        <div class="media-preview" id="awardUrlPreview" style="display:none">
+                            <div class="media-preview-inner" id="awardUrlPreviewInner"></div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="awardFinalMediaUrl">
+                </div>
+
+                <div class="form-group" style="margin-top:8px">
+                    <label>Featured?</label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="awardFeatured"> Show as featured (larger card)
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn-primary" id="saveAwardBtn">Save Award</button>
+                    <button class="btn-ghost" id="cancelAwardBtn">Cancel</button>
+                </div>
+                <div class="admin-msg" id="awardMsg"></div>
+            </div>
+
+            <div id="admin-awards-loading" class="loading-state"><div class="spinner"></div></div>
+            <div class="admin-table-wrap" id="admin-awards-list"></div>
         </div>
 
         <!-- === REVIEWS PANEL === -->

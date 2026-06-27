@@ -710,6 +710,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load dynamic data
     loadProjects();
     loadReviews();
+    loadAwards();
+    setupAwardModal();
+    setupAwardsPopup();
 });
 
 // ============================================================
@@ -766,4 +769,261 @@ function setupDragScroll(el) {
         const x = e.pageX - el.offsetLeft;
         el.scrollLeft = scrollLeft - (x - startX) * 1.5;
     });
+}
+
+// ============================================================
+//  AWARDS & CERTIFICATES
+// ============================================================
+async function loadAwards() {
+    const grid = document.getElementById('awards-grid');
+    const loading = document.getElementById('awards-loading');
+    if (!grid || !loading) return;
+
+    let awards = [];
+
+    try {
+        if (isSupabaseConfigured()) {
+            awards = await supabaseQuery('awards', {
+                filter: 'order=featured.desc,year.desc,created_at.desc'
+            });
+        }
+    } catch (e) {
+        console.warn('Could not load awards:', e.message);
+    }
+
+    loading.style.display = 'none';
+
+    if (awards.length === 0) {
+        document.getElementById('awards-empty').style.display = 'block';
+        return;
+    }
+
+    document.getElementById('awards-empty').style.display = 'none';
+
+    // Store globally for modal and popup
+    window._awardsData = awards;
+    window._awardsMap = {};
+    awards.forEach(a => { window._awardsMap[a.id] = a; });
+
+    renderAwards(awards);
+    setupDragScroll(grid);
+    setupCarouselArrows('awards-grid', 'awdArrowLeft', 'awdArrowRight');
+
+    // Auto-scroll the carousel every 3.5s
+    startAwardsAutoScroll();
+}
+
+function renderAwards(awards) {
+    const grid = document.getElementById('awards-grid');
+    if (!grid) return;
+
+    grid.innerHTML = awards.map(a => {
+        const imgHtml = a.image_url
+            ? `<img src="${a.image_url}" alt="${a.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=award-img-placeholder><i class=\\'bi bi-award\\'></i></div>'">`
+            : `<div class="award-img-placeholder"><i class="bi bi-award"></i></div>`;
+
+        const verifyBtn = a.verify_url
+            ? `<a href="${a.verify_url}" target="_blank" class="project-link primary" onclick="event.stopPropagation()"><i class="bi bi-patch-check"></i> Verify</a>`
+            : '';
+
+        return `
+        <div class="award-card ${a.featured ? 'featured' : ''}" data-id="${a.id}" onclick="handleAwardClick(this)">
+            <div class="award-img-wrap">
+                ${imgHtml}
+                ${a.issuer ? `<span class="award-issuer-badge">${a.issuer}</span>` : ''}
+                ${a.year ? `<span class="project-status-badge live award-year-badge">${a.year}</span>` : ''}
+            </div>
+            <div class="award-body">
+                <h3 class="award-title">${a.title}</h3>
+                ${a.description ? `<p class="award-desc">${a.description}</p>` : ''}
+                <div class="award-links">
+                    ${verifyBtn}
+                </div>
+                <div class="project-view-btn">
+                    <i class="bi bi-arrow-down-circle"></i> View Certificate
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ============================================================
+//  AWARDS AUTO-SCROLL
+// ============================================================
+let _awardsAutoTimer = null;
+
+function startAwardsAutoScroll() {
+    const grid = document.getElementById('awards-grid');
+    if (!grid) return;
+
+    clearInterval(_awardsAutoTimer);
+
+    _awardsAutoTimer = setInterval(() => {
+        // If user is interacting, skip this tick
+        if (grid.matches(':hover')) return;
+
+        const cardWidth = grid.firstElementChild
+            ? grid.firstElementChild.offsetWidth + 24
+            : 360;
+
+        // If at the end, snap back to start smoothly
+        if (grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 10) {
+            grid.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+            grid.scrollBy({ left: cardWidth, behavior: 'smooth' });
+        }
+    }, 3500);
+}
+
+// ============================================================
+//  AWARD MODAL
+// ============================================================
+function handleAwardClick(cardEl) {
+    const id = cardEl.dataset.id;
+    const award = window._awardsMap && window._awardsMap[id];
+    if (award) openAwardModal(award);
+}
+
+function openAwardModal(award) {
+    const overlay = document.getElementById('awardModal');
+    if (!overlay) return;
+
+    const mediaEl = document.getElementById('awardModalMedia');
+    if (award.image_url) {
+        mediaEl.innerHTML = `<img src="${award.image_url}" alt="${award.title}">`;
+    } else {
+        mediaEl.innerHTML = `<div class="proj-modal-media-placeholder"><i class="bi bi-award"></i></div>`;
+    }
+
+    document.getElementById('awardModalIssuer').textContent = award.issuer || 'Certificate';
+    document.getElementById('awardModalYear').textContent = award.year || '';
+    document.getElementById('awardModalTitle').textContent = award.title;
+    document.getElementById('awardModalDesc').textContent = award.description || '';
+
+    const verifyBtn = award.verify_url
+        ? `<a href="${award.verify_url}" target="_blank" class="project-link primary"><i class="bi bi-patch-check"></i> Verify Certificate</a>` : '';
+    document.getElementById('awardModalLinks').innerHTML = verifyBtn;
+
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function setupAwardModal() {
+    const overlay = document.getElementById('awardModal');
+    const closeBtn = document.getElementById('awardModalClose');
+    if (!overlay) return;
+
+    closeBtn?.addEventListener('click', closeAwardModal);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeAwardModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeAwardModal(); closeAwardsPopup(); } });
+}
+
+function closeAwardModal() {
+    const overlay = document.getElementById('awardModal');
+    if (overlay) overlay.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+// ============================================================
+//  AWARDS POPUP  (shows after 30s, once per session)
+// ============================================================
+let _awardsPopupTimer = null;
+let _awardsPopupStripTimer = null;
+let _awardsPopupStripIndex = 0;
+
+function setupAwardsPopup() {
+    // Only show once per session
+    if (sessionStorage.getItem('awardsPopupSeen') === 'true') return;
+
+    // Trigger after 30 seconds on page OR after 30s of scrolling — whichever comes first
+    _awardsPopupTimer = setTimeout(showAwardsPopup, 30000);
+
+    // Also trigger on scroll if 30s has passed
+    let scrollTriggered = false;
+    let pageLoadTime = Date.now();
+    window.addEventListener('scroll', function onScrollTrigger() {
+        if (scrollTriggered) return;
+        if (Date.now() - pageLoadTime >= 30000) {
+            scrollTriggered = true;
+            window.removeEventListener('scroll', onScrollTrigger);
+            clearTimeout(_awardsPopupTimer);
+            showAwardsPopup();
+        }
+    });
+
+    const closeBtn = document.getElementById('awardsPopupClose');
+    closeBtn?.addEventListener('click', closeAwardsPopup);
+
+    const overlay = document.getElementById('awardsPopup');
+    overlay?.addEventListener('click', e => { if (e.target === overlay) closeAwardsPopup(); });
+}
+
+function showAwardsPopup() {
+    const awards = window._awardsData;
+    if (!awards || awards.length === 0) return;
+
+    // Populate the scrolling strip
+    const strip = document.getElementById('awardsPopupStrip');
+    if (!strip) return;
+
+    // Build strip images (cycle through all awards)
+    const stripItems = awards.map(a => {
+        if (a.image_url) {
+            return `<div class="popup-strip-item" data-id="${a.id}" onclick="handlePopupStripClick(this)" title="${a.title}">
+                <img src="${a.image_url}" alt="${a.title}">
+            </div>`;
+        }
+        return `<div class="popup-strip-item popup-strip-placeholder" data-id="${a.id}" onclick="handlePopupStripClick(this)" title="${a.title}">
+            <i class="bi bi-award"></i>
+        </div>`;
+    }).join('');
+
+    // Duplicate for seamless loop
+    strip.innerHTML = stripItems + stripItems;
+
+    const overlay = document.getElementById('awardsPopup');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        // Animate in
+        requestAnimationFrame(() => overlay.classList.add('visible'));
+    }
+
+    // Auto-scroll the strip
+    startPopupStripScroll(strip);
+}
+
+function startPopupStripScroll(strip) {
+    clearInterval(_awardsPopupStripTimer);
+    let pos = 0;
+    const speed = 0.6; // px per frame
+
+    function tick() {
+        if (!strip || !document.getElementById('awardsPopup')?.classList.contains('visible')) return;
+        pos += speed;
+        // Reset when we've scrolled half (the duplicate set)
+        const half = strip.scrollWidth / 2;
+        if (pos >= half) pos = 0;
+        strip.style.transform = `translateX(-${pos}px)`;
+        _awardsPopupStripTimer = requestAnimationFrame(tick);
+    }
+    _awardsPopupStripTimer = requestAnimationFrame(tick);
+}
+
+function handlePopupStripClick(el) {
+    const id = el.dataset.id;
+    const award = window._awardsMap && window._awardsMap[id];
+    if (award) {
+        closeAwardsPopup();
+        setTimeout(() => openAwardModal(award), 200);
+    }
+}
+
+function closeAwardsPopup() {
+    const overlay = document.getElementById('awardsPopup');
+    if (overlay) {
+        overlay.classList.remove('visible');
+        setTimeout(() => { overlay.style.display = 'none'; }, 300);
+    }
+    cancelAnimationFrame(_awardsPopupStripTimer);
+    sessionStorage.setItem('awardsPopupSeen', 'true');
 }

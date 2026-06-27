@@ -38,6 +38,7 @@
             <li><a href="#skills" class="nav-link">Skills</a></li>
             <li><a href="#projects" class="nav-link">Projects</a></li>
             <li><a href="#testimonials" class="nav-link">Reviews</a></li>
+            <li><a href="#awards" class="nav-link">Awards</a></li>
             <li><a href="#contact" class="nav-link">Contact</a></li>
         </ul>
         <div class="nav-actions">
@@ -406,6 +407,73 @@
     </div>
 </section>
 
+<!-- ==================== AWARDS & CERTIFICATES ==================== -->
+<section id="awards" class="awards section">
+    <div class="container">
+        <div class="section-header" data-reveal>
+            <div class="section-label">Credentials</div>
+            <h2 class="section-title">Awards & <span class="text-accent">Certificates</span></h2>
+            <p class="section-subtitle">Professional certifications and recognitions I've earned</p>
+        </div>
+
+        <div id="awards-loading" class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading awards...</p>
+        </div>
+
+        <div class="carousel-wrapper">
+            <button class="carousel-arrow carousel-arrow-left" id="awdArrowLeft" aria-label="Previous">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="awards-grid" id="awards-grid"></div>
+            <button class="carousel-arrow carousel-arrow-right" id="awdArrowRight" aria-label="Next">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+
+        <div id="awards-empty" class="empty-state" style="display:none">
+            <i class="bi bi-award"></i>
+            <p>No awards yet.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== AWARDS POPUP ==================== -->
+<div id="awardsPopup" class="awards-popup-overlay" style="display:none" role="dialog" aria-modal="true">
+    <div class="awards-popup-inner">
+        <button class="awards-popup-close" id="awardsPopupClose" aria-label="Close">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="awards-popup-label">
+            <i class="bi bi-award-fill"></i> Credentials
+        </div>
+        <h3 class="awards-popup-title">See My Awards &amp; Certificates</h3>
+        <div class="awards-popup-strip" id="awardsPopupStrip"></div>
+        <a href="#awards" class="awards-popup-cta" id="awardsPopupCta" onclick="closeAwardsPopup()">
+            View All <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</div>
+
+<!-- ==================== AWARD MODAL ==================== -->
+<div id="awardModal" class="proj-modal-overlay" role="dialog" aria-modal="true" style="display:none">
+    <div class="proj-modal-box">
+        <button class="proj-modal-close" id="awardModalClose" aria-label="Close">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="proj-modal-media" id="awardModalMedia"></div>
+        <div class="proj-modal-body">
+            <div class="proj-modal-meta">
+                <span class="project-category-badge" id="awardModalIssuer"></span>
+                <span class="project-status-badge live" id="awardModalYear"></span>
+            </div>
+            <h2 class="proj-modal-title" id="awardModalTitle"></h2>
+            <p class="proj-modal-desc" id="awardModalDesc"></p>
+            <div class="proj-modal-links" id="awardModalLinks"></div>
+        </div>
+    </div>
+</div>
+
 <!-- ==================== CONTACT ==================== -->
 <section id="contact" class="contact section">
     <div class="container">
@@ -501,6 +569,7 @@
                 <a href="#about">About</a>
                 <a href="#projects">Projects</a>
                 <a href="#testimonials">Reviews</a>
+                <a href="#awards">Awards</a>
                 <a href="#contact">Contact</a>
             </div>
             <div class="footer-links">

@@ -906,3 +906,384 @@ async function loadVisitorTable() {
     document.getElementById('visitors-table').innerHTML = '';
     await loadVisitorAnalytics();
 }
+
+// ============================================================
+//  AWARDS ADMIN PANEL
+// ============================================================
+
+// Hook into showDashboard — add awards setup
+const _origShowDashboard = window.showDashboard;
+
+// We extend setupAdminPanels to load awards when its tab is clicked.
+// Patch into the existing panel switching by appending to the sidebar-btn click handler.
+document.addEventListener('DOMContentLoaded', () => {
+    // Called after showDashboard sets everything up
+    const observer = new MutationObserver(() => {
+        const dashboard = document.getElementById('adminDashboard');
+        if (dashboard && dashboard.style.display !== 'none') {
+            observer.disconnect();
+            // Patch sidebar to support awards tab
+            document.querySelectorAll('.sidebar-btn[data-panel]').forEach(btn => {
+                if (btn.dataset.panel === 'awards') {
+                    btn.addEventListener('click', loadAdminAwards);
+                }
+            });
+            setupAwardForm();
+            setupAwardMediaUpload();
+        }
+    });
+    observer.observe(document.body, { attributes: true, subtree: true });
+});
+
+// ---- FORM SETUP ----
+function setupAwardForm() {
+    document.getElementById('openAddAwardBtn')?.addEventListener('click', () => {
+        clearAwardForm();
+        document.getElementById('awardFormCard').style.display = 'block';
+        document.getElementById('awardFormTitle').textContent = 'Add New Award';
+    });
+
+    document.getElementById('cancelAwardBtn')?.addEventListener('click', () => {
+        document.getElementById('awardFormCard').style.display = 'none';
+        clearAwardForm();
+    });
+
+    document.getElementById('saveAwardBtn')?.addEventListener('click', saveAward);
+}
+
+function clearAwardForm() {
+    ['awardTitle', 'awardIssuer', 'awardYear', 'awardVerifyUrl',
+     'awardDesc', 'awardMediaUrl', 'awardFinalMediaUrl', 'editAwardId'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const featured = document.getElementById('awardFeatured');
+    if (featured) featured.checked = false;
+
+    clearAwardUploadPreview();
+    clearAwardMediaUrl();
+    window._awardPendingFile = null;
+
+    document.getElementById('awardToggleUpload')?.classList.add('active');
+    document.getElementById('awardToggleUrl')?.classList.remove('active');
+    document.getElementById('awardUploadMode').style.display = 'block';
+    document.getElementById('awardUrlMode').style.display = 'none';
+    document.getElementById('awardUploadProgress').style.display = 'none';
+}
+
+function clearAwardUploadPreview() {
+    document.getElementById('awardMediaPreview').style.display = 'none';
+    document.getElementById('awardMediaPreviewInner').innerHTML = '';
+    document.getElementById('awardFinalMediaUrl').value = '';
+    window._awardPendingFile = null;
+}
+
+function clearAwardMediaUrl() {
+    const urlInput = document.getElementById('awardMediaUrl');
+    if (urlInput) urlInput.value = '';
+    document.getElementById('awardUrlPreview').style.display = 'none';
+    document.getElementById('awardFinalMediaUrl').value = '';
+}
+
+// ---- MEDIA UPLOAD (awards) ----
+function setupAwardMediaUpload() {
+    const dropZone = document.getElementById('awardDropZone');
+    const fileInput = document.getElementById('awardFileInput');
+    const toggleUpload = document.getElementById('awardToggleUpload');
+    const toggleUrl = document.getElementById('awardToggleUrl');
+    const uploadMode = document.getElementById('awardUploadMode');
+    const urlMode = document.getElementById('awardUrlMode');
+    const urlInput = document.getElementById('awardMediaUrl');
+    const removeBtn = document.getElementById('awardRemoveMediaBtn');
+
+    toggleUpload?.addEventListener('click', () => {
+        toggleUpload.classList.add('active');
+        toggleUrl.classList.remove('active');
+        uploadMode.style.display = 'block';
+        urlMode.style.display = 'none';
+        clearAwardMediaUrl();
+    });
+
+    toggleUrl?.addEventListener('click', () => {
+        toggleUrl.classList.add('active');
+        toggleUpload.classList.remove('active');
+        urlMode.style.display = 'block';
+        uploadMode.style.display = 'none';
+        clearAwardUploadPreview();
+    });
+
+    dropZone?.addEventListener('click', () => fileInput?.click());
+
+    dropZone?.addEventListener('dragover', e => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+    dropZone?.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone?.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) handleAwardFileSelected(file);
+    });
+
+    fileInput?.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (file) handleAwardFileSelected(file);
+    });
+
+    urlInput?.addEventListener('input', () => {
+        const url = urlInput.value.trim();
+        if (url) {
+            document.getElementById('awardFinalMediaUrl').value = url;
+            const inner = document.getElementById('awardUrlPreviewInner');
+            inner.innerHTML = `<img src="${url}" alt="Preview" style="width:100%;max-height:200px;object-fit:cover" onerror="this.parentElement.innerHTML='<p style=padding:16px;color:var(--text-3)>Could not load image</p>'">`;
+            document.getElementById('awardUrlPreview').style.display = 'block';
+        } else {
+            document.getElementById('awardUrlPreview').style.display = 'none';
+            document.getElementById('awardFinalMediaUrl').value = '';
+        }
+    });
+
+    removeBtn?.addEventListener('click', () => {
+        clearAwardUploadPreview();
+        if (fileInput) fileInput.value = '';
+    });
+}
+
+function handleAwardFileSelected(file) {
+    const isImage = ACCEPTED_IMAGE_TYPES.includes(file.type);
+    const msg = document.getElementById('awardMsg');
+
+    if (!isImage) {
+        showMsg(msg, `Unsupported file type. Use JPG, PNG, WebP, GIF, or SVG.`, 'error');
+        return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+        showMsg(msg, 'Image must be under 5MB.', 'error');
+        return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    const inner = document.getElementById('awardMediaPreviewInner');
+    inner.innerHTML = `<img src="${objectUrl}" alt="Preview" style="width:100%;max-height:200px;object-fit:cover">`;
+    document.getElementById('awardMediaFileName').textContent = file.name;
+    document.getElementById('awardMediaPreview').style.display = 'block';
+
+    window._awardPendingFile = file;
+}
+
+async function uploadAwardFile(file) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const filePath = `awards/${fileName}`;
+
+    const progress = document.getElementById('awardUploadProgress');
+    const fill = document.getElementById('awardUploadProgressFill');
+    const text = document.getElementById('awardUploadProgressText');
+    progress.style.display = 'flex';
+
+    let pct = 0;
+    const fakeProgress = setInterval(() => {
+        pct = Math.min(pct + 8, 85);
+        fill.style.width = pct + '%';
+        text.textContent = `Uploading... ${pct}%`;
+    }, 150);
+
+    try {
+        const url = `${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${filePath}`;
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': file.type,
+                'x-upsert': 'true'
+            },
+            body: file
+        });
+
+        clearInterval(fakeProgress);
+
+        if (!res.ok) {
+            const err = await res.text();
+            throw new Error(`Upload failed: ${err}`);
+        }
+
+        fill.style.width = '100%';
+        text.textContent = 'Upload complete!';
+        setTimeout(() => { progress.style.display = 'none'; }, 1500);
+
+        return `${SUPABASE_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${filePath}`;
+    } catch (err) {
+        clearInterval(fakeProgress);
+        progress.style.display = 'none';
+        throw err;
+    }
+}
+
+// ---- SAVE AWARD ----
+async function saveAward() {
+    const title = document.getElementById('awardTitle')?.value.trim();
+    const issuer = document.getElementById('awardIssuer')?.value.trim();
+    const msg = document.getElementById('awardMsg');
+    const btn = document.getElementById('saveAwardBtn');
+
+    if (!title || !issuer) {
+        showMsg(msg, 'Title and Issuer are required.', 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    try {
+        if (!isSupabaseConfigured()) {
+            throw new Error('Supabase not configured yet. Add credentials to script.js first.');
+        }
+
+        let finalMediaUrl = document.getElementById('awardFinalMediaUrl')?.value || '';
+
+        if (window._awardPendingFile) {
+            btn.textContent = 'Uploading image...';
+            finalMediaUrl = await uploadAwardFile(window._awardPendingFile);
+            window._awardPendingFile = null;
+        }
+
+        const data = {
+            title,
+            issuer,
+            year: document.getElementById('awardYear')?.value
+                ? parseInt(document.getElementById('awardYear').value) : null,
+            description: document.getElementById('awardDesc')?.value.trim() || null,
+            verify_url: document.getElementById('awardVerifyUrl')?.value.trim() || null,
+            image_url: finalMediaUrl || null,
+            featured: document.getElementById('awardFeatured')?.checked || false,
+        };
+
+        const editId = document.getElementById('editAwardId')?.value;
+
+        if (editId) {
+            await supabaseAdmin('awards', 'PATCH', data, `id=eq.${editId}`);
+            showMsg(msg, 'Award updated successfully!', 'success');
+        } else {
+            await supabaseAdmin('awards', 'POST', data);
+            showMsg(msg, 'Award added successfully!', 'success');
+        }
+
+        clearAwardForm();
+        document.getElementById('awardFormCard').style.display = 'none';
+        loadAdminAwards();
+
+    } catch (err) {
+        showMsg(msg, err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Award';
+    }
+}
+
+// ---- LOAD & RENDER AWARDS TABLE ----
+async function loadAdminAwards() {
+    const container = document.getElementById('admin-awards-list');
+    const loading = document.getElementById('admin-awards-loading');
+    if (!container) return;
+
+    loading.style.display = 'block';
+
+    if (!isSupabaseConfigured()) {
+        loading.style.display = 'none';
+        container.innerHTML = `
+            <div style="padding:28px;text-align:center;color:var(--text-3)">
+                <p>Configure Supabase to manage awards.</p>
+            </div>`;
+        return;
+    }
+
+    try {
+        const awards = await supabaseQuery('awards', { filter: 'order=year.desc,created_at.desc' });
+        loading.style.display = 'none';
+
+        if (!awards.length) {
+            container.innerHTML = '<p style="padding:24px;color:var(--text-3)">No awards yet. Add your first one!</p>';
+            return;
+        }
+
+        container.innerHTML = `
+            <table class="admin-table">
+                <thead><tr>
+                    <th>Preview</th>
+                    <th>Title</th>
+                    <th>Issuer</th>
+                    <th>Year</th>
+                    <th>Featured</th>
+                    <th>Actions</th>
+                </tr></thead>
+                <tbody>
+                    ${awards.map(a => {
+                        const thumb = a.image_url
+                            ? `<img src="${a.image_url}" style="width:60px;height:40px;object-fit:cover;border-radius:6px" alt="">`
+                            : `<div style="width:60px;height:40px;background:var(--bg-input);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:0.7rem">No img</div>`;
+                        return `
+                        <tr>
+                            <td>${thumb}</td>
+                            <td class="table-title">${a.title}</td>
+                            <td>${a.issuer || '—'}</td>
+                            <td>${a.year || '—'}</td>
+                            <td>${a.featured ? '⭐' : ''}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="table-btn edit" onclick="editAward(${a.id})">Edit</button>
+                                    <button class="table-btn delete" onclick="deleteAward(${a.id}, '${a.title.replace(/'/g, "\\'")}')">Delete</button>
+                                </div>
+                            </td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>`;
+    } catch (err) {
+        loading.style.display = 'none';
+        container.innerHTML = `<p style="color:#e53e3e;padding:16px">Error: ${err.message}</p>`;
+    }
+}
+
+async function editAward(id) {
+    try {
+        const awards = await supabaseQuery('awards', { filter: `id=eq.${id}` });
+        const a = awards[0];
+        if (!a) return;
+
+        document.getElementById('editAwardId').value = a.id;
+        document.getElementById('awardTitle').value = a.title || '';
+        document.getElementById('awardIssuer').value = a.issuer || '';
+        document.getElementById('awardYear').value = a.year || '';
+        document.getElementById('awardVerifyUrl').value = a.verify_url || '';
+        document.getElementById('awardDesc').value = a.description || '';
+        document.getElementById('awardFeatured').checked = a.featured || false;
+        document.getElementById('awardFinalMediaUrl').value = a.image_url || '';
+
+        if (a.image_url) {
+            document.getElementById('awardToggleUrl').click();
+            const urlInput = document.getElementById('awardMediaUrl');
+            if (urlInput) urlInput.value = a.image_url;
+            const inner = document.getElementById('awardUrlPreviewInner');
+            inner.innerHTML = `<img src="${a.image_url}" alt="Preview" style="width:100%;max-height:200px;object-fit:cover">`;
+            document.getElementById('awardUrlPreview').style.display = 'block';
+        }
+
+        document.getElementById('awardFormTitle').textContent = 'Edit Award';
+        document.getElementById('awardFormCard').style.display = 'block';
+        document.getElementById('awardFormCard').scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+        alert('Failed to load award: ' + err.message);
+    }
+}
+
+async function deleteAward(id, title) {
+    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+    try {
+        await supabaseAdmin('awards', 'DELETE', null, `id=eq.${id}`);
+        loadAdminAwards();
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+}
